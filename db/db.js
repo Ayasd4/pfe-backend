@@ -1,6 +1,8 @@
 const { Pool } = require('pg'); // Importer Pool depuis pg
 
 // Créer une instance de Pool avec tes paramètres de connexion
+/*
+// Créer une instance de Pool avec tes paramètres de connexion
 const pool = new Pool({
     host: "localhost",
     user: "postgres",
@@ -8,6 +10,13 @@ const pool = new Pool({
     password: "0000",        
     database: "flotte" 
 });
+*/
+const pool = new Pool({
+    connectionString: 'postgresql://neondb_owner:npg_w7lbz2kCsouh@ep-shrill-flower-a46zz03f-pooler.us-east-1.aws.neon.tech/neondb?sslmode=require',
+    ssl: {
+      rejectUnauthorized: false,
+    },
+  });
 
 // Tester la connexion
 pool.connect((err, connection) => {
