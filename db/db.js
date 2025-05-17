@@ -18,7 +18,7 @@ const pool = new Pool({
 
 //base de données en ligne
 const pool = new Pool({
-  connectionString: 'postgresql://neondb_owner:npg_w7lbz2kCsouh@ep-odd-wildflower-a43ebu2v-pooler.us-east-1.aws.neon.tech/neondb?sslmode=require',
+  connectionString: 'postgresql://neondb_owner:npg_w7lbz2kCsouh@ep-floral-silence-a4v8h6le-pooler.us-east-1.aws.neon.tech/neondb?sslmode=require',
   ssl: {
     rejectUnauthorized: false,
   },
