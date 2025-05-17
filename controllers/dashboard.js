@@ -2,7 +2,7 @@ const db = require('../db/db');
 
 exports.countVehicle = async (req, res) => {
     try {
-        const sql = "SELECT COUNT(*) AS total FROM acc.vehicule";
+        const sql = "SELECT COUNT(*) AS total FROM acc.vehicule WHERE is_deleted = false";
         const result = await db.query(sql);
         console.log('Total vehicles :', result.rows[0].total);
         return res.status(200).json({ total: result.rows[0].total });
@@ -14,7 +14,7 @@ exports.countVehicle = async (req, res) => {
 
 exports.countDriver = async (req, res) => {
     try {
-        const sql = "SELECT COUNT(*) AS total FROM acc.chauffeur";
+        const sql = "SELECT COUNT(*) AS total FROM acc.chauffeur WHERE is_deleted = false";
         const result = await db.query(sql);
         console.log('Total Drivers :', result.rows[0].total);
         return res.status(200).json({ total: result.rows[0].total });
@@ -26,7 +26,7 @@ exports.countDriver = async (req, res) => {
 
 exports.countTechnician = async (req, res) => {
     try {
-        const sql = "SELECT COUNT(*) AS total FROM acc.technicien";
+        const sql = "SELECT COUNT(*) AS total FROM acc.technicien WHERE is_deleted = false";
         const result = await db.query(sql);
         console.log('Total Technician :', result.rows[0].total);
         return res.status(200).json({ total: result.rows[0].total });
@@ -38,7 +38,7 @@ exports.countTechnician = async (req, res) => {
 
 exports.countAtelier = async (req, res) => {
     try {
-        const sql = "SELECT COUNT(*) AS total FROM acc.atelier";
+        const sql = "SELECT COUNT(*) AS total FROM acc.atelier WHERE is_deleted = false";
         const result = await db.query(sql);
         console.log('Total Workshops :', result.rows[0].total);
         return res.status(200).json({ total: result.rows[0].total });
@@ -50,7 +50,7 @@ exports.countAtelier = async (req, res) => {
 
 exports.countOrders = async (req, res) => {
     try {
-        const sql = "SELECT COUNT(*) AS total FROM acc.ordre_travail";
+        const sql = "SELECT COUNT(*) AS total FROM acc.ordre_travail WHERE is_deleted = false";
         const result = await db.query(sql);
         console.log('Total Ordres :', result.rows[0].total);
         return res.status(200).json({ total: result.rows[0].total });
