@@ -40,7 +40,7 @@ exports.generatePdf = async (req, res) => {
     JOIN acc.diagnostic AS diag ON o.id_diagnostic = diag.id_diagnostic
     JOIN acc.demandes AS d ON diag.id_demande = d.id_demande
     JOIN acc.vehicule AS v ON d.id_vehicule = v.idvehicule
-    WHERE id_intervention = $1`;
+    WHERE id_intervention = $1 AND is_deleted = false`;
 
 
         db.query(sql, [id_intervention], (err, result) => {
@@ -243,6 +243,7 @@ exports.search = async (req, res) => {
     JOIN acc.diagnostic AS diag ON o.id_diagnostic = diag.id_diagnostic
     JOIN acc.demandes AS d ON diag.id_demande = d.id_demande
     JOIN acc.vehicule AS v ON d.id_vehicule = v.idvehicule
+    WHERE is_deleted = false
     `;
 
         if (conditions.length > 0) {
@@ -286,7 +287,8 @@ exports.list = async (req, res) => {
     JOIN acc.atelier AS a ON i.id_atelier = a.id_atelier
     JOIN acc.diagnostic AS diag ON o.id_diagnostic = diag.id_diagnostic
     JOIN acc.demandes AS d ON diag.id_demande = d.id_demande
-    JOIN acc.vehicule AS v ON d.id_vehicule = v.idvehicule; `;
+    JOIN acc.vehicule AS v ON d.id_vehicule = v.idvehicule
+    WHERE is_deleted = false;`;
 
     db.query(sql, (err, result) => {
         if (err) return res.status(500).json({ error: err.message });
@@ -296,7 +298,7 @@ exports.list = async (req, res) => {
 
 exports.show = async (req, res) => {
     const id_intervention = Number(req.params.id_intervention);
-    const sql = "SELECT * FROM acc.intervention WHERE id_intervention=$1";
+    const sql = "SELECT * FROM acc.intervention WHERE id_intervention=$1 AND is_deleted = false";
 
     db.query(sql, [id_intervention], (err, result) => {
         if (err) return res.status(500).json({ error: err.message });
@@ -329,7 +331,7 @@ exports.create = async (req, res) => {
         }
         const id_ordre = ordreResult.rows[0].id_ordre;
 
-        const technicienResult = await db.query("SELECT id_technicien FROM acc.technicien WHERE matricule_techn = $1", [matricule_techn]);
+        const technicienResult = await db.query("SELECT id_technicien FROM acc.technicien WHERE matricule_techn = $1 AND is_deleted = false", [matricule_techn]);
         if (technicienResult.rows.length === 0) {
             return res.status(400).json({ error: "technicien not found!" });
         }
@@ -389,13 +391,13 @@ exports.update = async (req, res) => {
         const id_ordre = ordreResult.rows[0].id_ordre;
 
 
-        const technicienResult = await db.query("SELECT id_technicien FROM acc.technicien WHERE matricule_techn = $1", [matricule_techn]);
+        const technicienResult = await db.query("SELECT id_technicien FROM acc.technicien WHERE matricule_techn = $1 AND is_deleted = false", [matricule_techn]);
         if (technicienResult.rows.length === 0) {
             return res.status(400).json({ error: "technicien not found!" });
         }
         const id_technicien = technicienResult.rows[0].id_technicien;
 
-        const atelierResult = await db.query("SELECT id_atelier FROM acc.atelier WHERE nom_atelier = $1", [nom_atelier]);
+        const atelierResult = await db.query("SELECT id_atelier FROM acc.atelier WHERE nom_atelier = $1 AND is_deleted = false", [nom_atelier]);
         if (atelierResult.rows.length === 0) {
             return res.status(400).json({ error: "workshops not found!" });
         }
@@ -429,7 +431,9 @@ exports.update = async (req, res) => {
 
 exports.delete = async (req, res) => {
     const id_intervention = Number(req.params.id_intervention);
-    const sql = "DELETE FROM acc.intervention WHERE id_intervention=$1 RETURNING *";
+    //const sql = "DELETE FROM acc.intervention WHERE id_intervention=$1 RETURNING *";
+
+    const sql = "UPDATE acc.intervention SET is_deleted = true WHERE id_intervention=$1 RETURNING id_intervention";
 
     db.query(sql, [id_intervention], (err, result) => {
         if (err) return res.status(500).json({ error: err.message });
@@ -466,7 +470,7 @@ exports.getOrdreByTravaux = async (req, res) => {
 
 exports.getTechnicienByMatricule = async (req, res) => {
     const matricule_techn = req.params.matricule_techn;
-    const sql = "SELECT  matricule_techn, nom, prenom, email_techn, specialite FROM acc.technicien WHERE matricule_techn=$1";
+    const sql = "SELECT matricule_techn, nom, prenom, email_techn, specialite FROM acc.technicien WHERE matricule_techn=$1 AND is_deleted = false";
     //idvehicule,
     db.query(sql, [matricule_techn], (err, result) => {
         if (err) return res.status(500).json({ error: err.message });
@@ -476,7 +480,7 @@ exports.getTechnicienByMatricule = async (req, res) => {
 
 exports.getAtelierByNom = async (req, res) => {
     const nom_atelier = req.params.nom_atelier;
-    const sql = "SELECT  nom_atelier, telephone, email FROM acc.atelier WHERE nom_atelier=$1";
+    const sql = "SELECT  nom_atelier, telephone, email FROM acc.atelier WHERE nom_atelier=$1 AND is_deleted = false";
     //idvehicule,
     db.query(sql, [nom_atelier], (err, result) => {
         if (err) return res.status(500).json({ error: err.message });

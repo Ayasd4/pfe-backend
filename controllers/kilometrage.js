@@ -12,9 +12,10 @@ exports.list = async (req, res) => {
         FROM acc.kilometrage k
         LEFT JOIN acc.vehicule v ON k."vehiculeId" = v.idvehicule
         LEFT JOIN acc.chauffeur ch ON k."driverId" = ch.id_chauf
+        WHERE is_deleted = false
     `;
     db.query(sql, (err, result) => {
-        if (err) return res.status(500).json({error: err.message});
+        if (err) return res.status(500).json({ error: err.message });
         return res.status(200).json(result.rows);
     });
 };
@@ -32,10 +33,10 @@ exports.show = async (req, res) => {
         FROM acc.kilometrage k
         LEFT JOIN acc.vehicule v ON k."vehiculeId" = v.idvehicule
         LEFT JOIN acc.chauffeur ch ON k."driverId" = ch.id_chauf
-        WHERE k.id = $1
+        WHERE k.id = $1 AND is_deleted = false
     `;
     db.query(sql, [valueId], (err, result) => {
-        if (err) return res.status(500).json({error: err.message});
+        if (err) return res.status(500).json({ error: err.message });
         return res.status(200).json(result.rows);
     });
 };
@@ -44,7 +45,7 @@ exports.create = async (req, res) => {
     const { vehiculeId, date, driverId, calcul } = req.body;
 
     // Vérifie s’il existe une ligne avec ce vehiculeId
-    const checkSql = `SELECT * FROM acc.kilometrage WHERE "vehiculeId" = $1 LIMIT 1`;
+    const checkSql = `SELECT * FROM acc.kilometrage WHERE is_deleted = false AND "vehiculeId" = $1 LIMIT 1`;
 
     db.query(checkSql, [vehiculeId], (err, checkResult) => {
         if (err) return res.status(500).json({ error: err.message });
@@ -100,9 +101,9 @@ exports.update = async (req, res) => {
     const valueId = Number(req.params.id);
     const { vehiculeId, date, driverId, calcul } = req.body;
     const sql = "UPDATE acc.kilometrage SET \"vehiculeId\"=$1, date=$2, \"driverId\"=$3, calcul=$4 WHERE id=$5 RETURNING *";
-    
+
     db.query(sql, [vehiculeId, date, driverId, calcul, valueId], (err, result) => {
-        if (err) return res.status(500).json({error: err.message});
+        if (err) return res.status(500).json({ error: err.message });
         if (result.rowCount === 0) {
             return res.status(404).json({ message: "Kilometrage record not found" });
         }
@@ -113,10 +114,12 @@ exports.update = async (req, res) => {
 // Delete kilometrage record
 exports.delete = async (req, res) => {
     const valueId = Number(req.params.id);
-    const sql = "DELETE FROM acc.kilometrage WHERE id=$1 RETURNING id";
-    
+    //const sql = "DELETE FROM acc.kilometrage WHERE id=$1 RETURNING id";
+
+    const sql = "UPDATE acc.kilometrage SET is_deleted = true WHERE id = $1 RETURNING id";
+
     db.query(sql, [valueId], (err, result) => {
-        if (err) return res.status(500).json({error: err.message});
+        if (err) return res.status(500).json({ error: err.message });
         if (result.rowCount === 0) {
             return res.status(404).json({ message: "Kilometrage record not found" });
         }
@@ -127,10 +130,10 @@ exports.delete = async (req, res) => {
 // Get total kilometrage for a specific vehicle
 exports.getVehicleTotal = async (req, res) => {
     const vehiculeId = Number(req.params.vehiculeId);
-    const sql = "SELECT SUM(calcul) as total_km FROM acc.kilometrage WHERE \"vehiculeId\" = $1";
-    
+    const sql = "SELECT SUM(calcul) as total_km FROM acc.kilometrage WHERE \"vehiculeId\" = $1 AND is_deleted = false";
+
     db.query(sql, [vehiculeId], (err, result) => {
-        if (err) return res.status(500).json({error: err.message});
+        if (err) return res.status(500).json({ error: err.message });
         return res.status(200).json({
             vehiculeId: vehiculeId,
             totalKilometrage: result.rows[0]?.total_km || 0
@@ -148,7 +151,7 @@ exports.getKilometrageByNumparc = async (req, res) => {
             SELECT k.calcul
             FROM acc.kilometrage k
             JOIN acc.vehicule v ON v.idvehicule = k."vehiculeId"
-            WHERE v.numparc = $1
+            WHERE v.numparc = $1 AND is_deleted = false
             LIMIT 1
         `;
 

@@ -90,7 +90,8 @@ exports.search = async (req, res) => {
         diag.heure_diagnostic
         FROM acc.diagnostic AS diag
         JOIN acc.demandes AS d ON diag.id_demande = d.id_demande
-        JOIN acc.vehicule AS v ON d.id_vehicule = v.idvehicule`;
+        JOIN acc.vehicule AS v ON d.id_vehicule = v.idvehicule
+        WHERE is_deleted = false`;
 
         if (conditions.length > 0) {
             sql += " WHERE " + conditions.join(" AND ");
@@ -132,7 +133,8 @@ exports.list = async (req, res) => {
     FROM acc.diagnostic AS diag
     JOIN acc.demandes AS d ON diag.id_demande = d.id_demande
     JOIN acc.vehicule AS v ON d.id_vehicule = v.idvehicule
-    JOIN acc.chauffeur AS c ON d.id_chauffeur = c.id_chauf;`;
+    JOIN acc.chauffeur AS c ON d.id_chauffeur = c.id_chauf
+    WHERE is_deleted= false;`;
 
     db.query(sql, (err, result) => {
         if (err) return res.status(500).json({ error: err.message });
@@ -144,7 +146,7 @@ exports.list = async (req, res) => {
 exports.show = async (req, res) => {
     const id_diagnostic = Number(req.params.id_diagnostic);
 
-    sql = "SELECT * FROM acc.diagnostic WHERE id_diagnostic=$1";
+    sql = "SELECT * FROM acc.diagnostic WHERE id_diagnostic=$1 AND is_deleted= false";
 
     db.query(sql, [id_diagnostic], (err, result) => {
         if (err) return res.status(500).json({ error: err.message });
@@ -161,7 +163,7 @@ exports.create = async (req, res) => {
     }
 
     // Vérifier si la demande existe dans la table demandes
-    const demandeResult = await db.query("SELECT id_demande FROM acc.demandes WHERE id_demande= $1", [id_demande]);
+    const demandeResult = await db.query("SELECT id_demande FROM acc.demandes WHERE id_demande= $1 AND is_deleted= false", [id_demande]);
     if (demandeResult.rows.length === 0) {
         return res.status(400).json({ error: "Request not found (id_demande does not exist)!" });
     }
@@ -216,7 +218,8 @@ exports.update = async (req, res) => {
 exports.delete = async (req, res) => {
     const id_diagnostic = Number(req.params.id_diagnostic);
 
-    sql = "DELETE FROM acc.diagnostic WHERE id_diagnostic=$1";
+    //sql = "DELETE FROM acc.diagnostic WHERE id_diagnostic=$1";
+    const sql = "UPDATE acc.diagnostic SET is_deleted = true WHERE id_diagnostic = $1 RETURNING id_diagnostic";
 
     db.query(sql, [id_diagnostic], (err, result) => {
         if (err) return res.status(500).json({ error: err.message });

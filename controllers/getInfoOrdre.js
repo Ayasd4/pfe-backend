@@ -2,7 +2,7 @@ const db = require("../db/db");
 
 //les infos
 exports.getAllDiagnostic = async (req, res) => {
-    const sql = "SELECT description_panne FROM acc.diagnostic";
+    const sql = "SELECT description_panne FROM acc.diagnostic WHERE is_deleted = false";
 
     db.query(sql, (err, result) => {
         if (err) {
@@ -18,7 +18,7 @@ exports.getAllDiagnostic = async (req, res) => {
 }
 
 exports.getAllAtelier = async (req, res) => {
-    const sql = "SELECT nom_atelier FROM acc.atelier";
+    const sql = "SELECT nom_atelier FROM acc.atelier WHERE is_deleted = false";
 
     db.query(sql, (err, result) => {
         if (err) {
@@ -34,7 +34,7 @@ exports.getAllAtelier = async (req, res) => {
 }
 
 exports.getAllTechnicien = async (req, res) => {
-    const sql = "SELECT matricule_techn FROM acc.technicien";
+    const sql = "SELECT matricule_techn FROM acc.technicien WHERE is_deleted = false";
 
     db.query(sql, (err, result) => {
         if (err) {

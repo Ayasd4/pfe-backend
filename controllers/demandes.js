@@ -30,7 +30,7 @@ exports.generatePdf = async (req, res) => {
         FROM acc.demandes AS d
         JOIN acc.vehicule AS v ON d.id_vehicule = v.idvehicule
         JOIN acc.chauffeur AS c ON d.id_chauffeur = c.id_chauf 
-        WHERE id_demande=$1`;
+        WHERE id_demande=$1 AND is_deleted = false`;
 
         db.query(sql, [id_demande], (err, result) => {
             if (err) return res.status(500).json({ error: err.message });
@@ -207,7 +207,8 @@ exports.search = async (req, res) => {
         c.email
         FROM acc.demandes AS d
         JOIN acc.vehicule AS v ON d.id_vehicule = v.idvehicule
-        JOIN acc.chauffeur AS c ON d.id_chauffeur = c.id_chauf`;
+        JOIN acc.chauffeur AS c ON d.id_chauffeur = c.id_chauf
+        WHERE is_deleted = false`;
 
         if (conditions.length > 0) {
             sql += " WHERE " + conditions.join(" AND ");
@@ -243,7 +244,8 @@ exports.list = async (req, res) => {
     d.statut
     FROM acc.demandes AS d
     JOIN acc.vehicule AS v ON d.id_vehicule = v.idvehicule
-    JOIN acc.chauffeur AS c ON d.id_chauffeur = c.id_chauf;`;
+    JOIN acc.chauffeur AS c ON d.id_chauffeur = c.id_chauf
+    WHERE is_deleted = false;`;
 
     db.query(sql, (err, result) => {
         if (err) return res.status(500).json({ error: err.message });
@@ -254,7 +256,7 @@ exports.list = async (req, res) => {
 
 exports.show = async (req, res) => {
     const id_demande = Number(req.params.id_demande);
-    const sql = "SELECT * FROM acc.demandes WHERE id_demande=$1";
+    const sql = "SELECT * FROM acc.demandes WHERE id_demande=$1 AND is_deleted = false";
 
     db.query(sql, [id_demande], (err, result) => {
         if (err) return res.status(500).json({ error: err.message });
@@ -282,14 +284,14 @@ exports.create = async (req, res) => {
         }
 
         // 1. Récupérer l'ID du véhicule
-        const vehiculeResult = await db.query("SELECT idvehicule FROM acc.vehicule WHERE numparc = $1", [numparc]);
+        const vehiculeResult = await db.query("SELECT idvehicule FROM acc.vehicule WHERE numparc = $1 AND is_deleted= false", [numparc]);
         if (vehiculeResult.rows.length === 0) {
             return res.status(400).json({ error: "Vehicle not found!" });
         }
         const id_vehicule = vehiculeResult.rows[0].idvehicule;
 
         // 2. Récupérer l'ID du chauffeur
-        const chauffeurResult = await db.query("SELECT id_chauf FROM acc.chauffeur WHERE nom = $1", [nom]);
+        const chauffeurResult = await db.query("SELECT id_chauf FROM acc.chauffeur WHERE nom = $1 AND is_deleted= false", [nom]);
         if (chauffeurResult.rows.length === 0) {
             return res.status(400).json({ error: "Driver not found!" });
         }
@@ -394,7 +396,8 @@ exports.update = async (req, res) => {
 
 exports.delete = async (req, res) => {
     const id_demande = Number(req.params.id_demande);
-    const sql = "DELETE FROM acc.demandes WHERE id_demande=$1";
+    //const sql = "DELETE FROM acc.demandes WHERE id_demande=$1";
+    const sql = "UPDATE acc.demandes SET is_deleted = true WHERE id_demande = $1 RETURNING id_demande";
 
     db.query(sql, [id_demande], (err, result) => {
         if (err) return res.status(500).json({ error: err.message });

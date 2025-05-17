@@ -11,7 +11,8 @@ exports.getAllOrdre = async (req, res) => {
                 o.planning,
                 o.date_ordre
             FROM acc.ordre_travail o
-            JOIN acc.travaux t ON o.id_travaux = t.id_travaux`;
+            JOIN acc.travaux t ON o.id_travaux = t.id_travaux
+            WHERE is_deleted = false`;
 
         db.query(sql, (err, result) => {
             if (err) {

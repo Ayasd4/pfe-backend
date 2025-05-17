@@ -40,7 +40,8 @@ exports.search = async (req, res) => {
         vd.date_vidange,
         vd.km_vidange
         FROM acc.vidanges AS vd
-        JOIN acc.vehicule AS v ON vd.id_vehicule = v.idvehicule`;
+        JOIN acc.vehicule AS v ON vd.id_vehicule = v.idvehicule
+        WHERE is_deleted = false`;
 
         if (conditions.length > 0) {
             sql += " WHERE " + conditions.join(" AND ");
@@ -62,7 +63,8 @@ exports.list = async (req, res) => {
         vd.date_vidange,
         vd.km_vidange
         FROM acc.vidanges AS vd
-        JOIN acc.vehicule AS v ON vd.id_vehicule = v.idvehicule`;
+        JOIN acc.vehicule AS v ON vd.id_vehicule = v.idvehicule
+        WHERE is_deleted = false`;
     db.query(sql, (err, result) => {
         if (err) return res.status(500).json({ error: err.message });
         return res.status(200).json(result.rows);
@@ -72,7 +74,7 @@ exports.list = async (req, res) => {
 exports.show = async (req, res) => {
     const id_vd = Number(req.params.id_vd);
     const sql = `
-        SELECT * FROM acc.vidanges WHERE id_vd=$1`;
+        SELECT * FROM acc.vidanges WHERE id_vd=$1 AND is_deleted = false`;
 
     db.query(sql, [id_vd], (err, result) => {
         if (err) return res.status(500).json({ error: err.message });
@@ -117,7 +119,7 @@ exports.update = async (req, res) => {
     const { numparc } = vehicule;
 
     // 1. Récupérer l'ID du véhicule
-    const vehiculeResult = await db.query("SELECT idvehicule FROM acc.vehicule WHERE numparc = $1", [numparc]);
+    const vehiculeResult = await db.query("SELECT idvehicule FROM acc.vehicule WHERE numparc = $1 AND is_deleted = false", [numparc]);
     if (vehiculeResult.rows.length === 0) {
         return res.status(400).json({ error: "Vehicle not found!" });
     }
@@ -142,7 +144,8 @@ exports.update = async (req, res) => {
 
 exports.delete = async (req, res) => {
     const id_vd = Number(req.params.id_vd);
-    const sql = `DELETE FROM acc.vidanges WHERE id_vd=$1`;
+    //const sql = `DELETE FROM acc.vidanges WHERE id_vd=$1`;
+    const sql = "UPDATE acc.vidanges SET is_deleted = true WHERE id_vd = $1 RETURNING id_vd";
 
     db.query(sql, [id_vd], (err, result) => {
         if (err) return res.status(500).json({ error: err.message });

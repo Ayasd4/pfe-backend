@@ -71,6 +71,7 @@ exports.generateRapport = async (req, res) => {
         JOIN acc.vehicule AS v ON e.id_vehicule = v.idvehicule
         JOIN acc.kilometrage AS k ON e.id_kilometrage = k.id
         LEFT JOIN acc.vidanges AS vd ON e.km_derniere_vd = vd.km_vidange AND e.id_vehicule = vd.id_vehicule
+        WHERE is_deleted = false
         `;
 
         if (conditions.length > 0) {
@@ -171,6 +172,7 @@ exports.list = async (req, res) => {
         JOIN acc.vehicule AS v ON e.id_vehicule = v.idvehicule
         JOIN acc.kilometrage AS k ON e.id_kilometrage = k.id
         LEFT JOIN acc.vidanges AS vd ON e.km_derniere_vd = vd.km_vidange AND e.id_vehicule = vd.id_vehicule
+        WHERE is_deleted= false
         `;
 
     db.query(sql, (err, result) => {
@@ -181,7 +183,7 @@ exports.list = async (req, res) => {
 
 exports.show = async (req, res) => {
     const id_vidange = Number(req.params.id_vidange);
-    const sql = `SELECT * FROM acc.etat_vidange WHERE id_vidange=$1`;
+    const sql = `SELECT * FROM acc.etat_vidange WHERE id_vidange=$1 AND is_deleted= false`;
 
     db.query(sql, [id_vidange], (err, result) => {
         if (err) return res.status(500).json({ error: err.message });
@@ -202,7 +204,7 @@ exports.create = async (req, res) => {
         const { calcul } = kilometrage;
 
         // 1. Récupérer l'ID du véhicule
-        const vehiculeResult = await db.query("SELECT idvehicule FROM acc.vehicule WHERE numparc = $1", [numparc]);
+        const vehiculeResult = await db.query("SELECT idvehicule FROM acc.vehicule WHERE numparc = $1 AND is_deleted= false", [numparc]);
         if (vehiculeResult.rows.length === 0) {
             return res.status(400).json({ error: "Vehicle not found!" });
         }
@@ -221,7 +223,7 @@ exports.create = async (req, res) => {
         const vidangeQuery = `
           SELECT km_vidange 
           FROM acc.vidanges 
-          WHERE id_vehicule = $1 
+          WHERE id_vehicule = $1 AND is_deleted= false
           ORDER BY id_vd DESC 
           LIMIT 1
         `;
@@ -324,7 +326,8 @@ exports.update = async (req, res) => {
 
 exports.delete = async (req, res) => {
     const id_vidange = Number(req.params.id_vidange);
-    const sql = `DELETE FROM acc.etat_vidange WHERE id_vidange=$1`;
+    //const sql = `DELETE FROM acc.etat_vidange WHERE id_vidange=$1`;
+    const sql = "UPDATE acc.etat_vidange SET is_deleted = true WHERE id_vidange = $1 RETURNING id_vidange";
 
     db.query(sql, [id_vidange], (err, result) => {
         if (err) return res.status(500).json({ error: err.message });
@@ -332,6 +335,9 @@ exports.delete = async (req, res) => {
         return res.status(200).json({ message: "Oil change deleted successfully!" });
     });
 }
+
+
+
 
 
 

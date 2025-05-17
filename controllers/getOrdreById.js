@@ -42,7 +42,7 @@ exports.getOrdreById = async (req, res) => {
     tech.specialite
     FROM acc.ordre_travail AS o
     JOIN acc.technicien AS tech ON o.id_technicien = tech.id_technicien 
-    WHERE id_ordre=$1
+    WHERE id_ordre=$1 AND is_deleted = false
     `;
 
     db.query(sql, [id_ordre], (err, result) => {

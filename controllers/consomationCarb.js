@@ -16,9 +16,10 @@ exports.list = async (req, res) => {
         LEFT JOIN acc.vehicule v ON c."idVehicule" = v.idvehicule
         LEFT JOIN acc.chauffeur ch ON c."idChaff" = ch.id_chauf
         LEFT JOIN acc.agence a ON c."idAgence" = a.id_agence
+        WHERE is_deleted = false
     `;
     db.query(sql, (err, result) => {
-        if (err) return res.status(500).json({error: err.message});
+        if (err) return res.status(500).json({ error: err.message });
         return res.status(200).json(result.rows);
     });
 };
@@ -38,27 +39,27 @@ exports.show = async (req, res) => {
         LEFT JOIN acc.vehicule v ON c."idVehicule" = v.idvehicule
         LEFT JOIN acc.chauffeur ch ON c."idChaff" = ch.id_chauf
         LEFT JOIN acc.agence a ON c."idAgence" = a.id_agence
-        WHERE c."idConsomation" = $1
+        WHERE c."idConsomation" = $1 AND is_deleted = false
     `;
     db.query(sql, [valueId], (err, result) => {
-        if (err) return res.status(500).json({error: err.message});
+        if (err) return res.status(500).json({ error: err.message });
         return res.status(200).json(result.rows);
     });
 };
 // ajouter colone calcul
 // Create new fuel consumption record
 exports.create = async (req, res) => {
-    const { numPark, QteCarb, indexkilo, dateDebut,  idChaff, idVehicule, idAgence } = req.body;
+    const { numPark, QteCarb, indexkilo, dateDebut, idChaff, idVehicule, idAgence } = req.body;
 
-    const qte=parseFloat(QteCarb)
-    const index=parseFloat(indexkilo);
+    const qte = parseFloat(QteCarb)
+    const index = parseFloat(indexkilo);
 
-    const calcul_cons = ((qte/index)*100).toFixed(2);
-    
+    const calcul_cons = ((qte / index) * 100).toFixed(2);
+
     const sql = "INSERT INTO acc.\"consomationCarb\"(\"numPark\", \"QteCarb\", indexkilo, \"dateDebut\", \"idChaff\", \"idVehicule\", \"idAgence\",calcul) VALUES ($1, $2, $3, $4, $5, $6, $7,$8) RETURNING *";
 
-    db.query(sql, [numPark, QteCarb, indexkilo, dateDebut,  idChaff, idVehicule, idAgence,calcul_cons], (err, result) => {
-        if (err) return res.status(500).json({error: err.message});
+    db.query(sql, [numPark, QteCarb, indexkilo, dateDebut, idChaff, idVehicule, idAgence, calcul_cons], (err, result) => {
+        if (err) return res.status(500).json({ error: err.message });
         return res.status(201).json({ message: "Fuel consumption record created", consomation: result.rows[0] });
     });
 };
@@ -69,7 +70,7 @@ exports.update = async (req, res) => {
     const { numPark, QteCarb, indexkilo, dateDebut, idChaff, idVehicule, idAgence } = req.body;
 
     //const {idVehicule} = req.body;
-    
+
     const qte = parseFloat(QteCarb);
     const index = parseFloat(indexkilo);
     const calcul_cons = ((qte / index) * 100).toFixed(2);
@@ -80,7 +81,7 @@ exports.update = async (req, res) => {
         WHERE "idConsomation"=$9 
         RETURNING *
     `;
-    
+
     db.query(sql, [numPark, QteCarb, indexkilo, dateDebut, idChaff, idVehicule, idAgence, calcul_cons, valueId], (err, result) => {
         if (err) return res.status(500).json({ error: err.message });
         if (result.rowCount === 0) {
@@ -94,10 +95,12 @@ exports.update = async (req, res) => {
 // Delete fuel consumption record
 exports.delete = async (req, res) => {
     const valueId = Number(req.params.idConsomation);
-    const sql = "DELETE FROM acc.\"consomationCarb\" WHERE \"idConsomation\"=$1 RETURNING \"idConsomation\"";
-    
+    const sql = "UPDATE acc.\"consomationCarb\" SET is_deleted = true WHERE \"idConsomation\"=$1 RETURNING \"idConsomation\" ";
+
+    //const sql = "DELETE FROM acc.\"consomationCarb\" WHERE \"idConsomation\"=$1 RETURNING \"idConsomation\"";
+
     db.query(sql, [valueId], (err, result) => {
-        if (err) return res.status(500).json({error: err.message});
+        if (err) return res.status(500).json({ error: err.message });
         if (result.rowCount === 0) {
             return res.status(404).json({ message: "Fuel consumption record not found" });
         }
@@ -110,32 +113,32 @@ exports.search = async (req, res) => {
     let conditions = [];
     let values = [];
     let paramIndex = 1;
-    
+
     // Build dynamic query based on provided search parameters
     if (req.query.idVehicule) {
         conditions.push(`c.\"idVehicule\"=$${paramIndex}`);
         values.push(req.query.idVehicule);
         paramIndex++;
     }
-    
+
     if (req.query.idChaff) {
         conditions.push(`c.\"idChaff\"=$${paramIndex}`);
         values.push(req.query.idChaff);
         paramIndex++;
     }
-    
+
     if (req.query.idAgence) {
         conditions.push(`c.\"idAgence\"=$${paramIndex}`);
         values.push(req.query.idAgence);
         paramIndex++;
     }
-    
+
     if (req.query.numPark) {
         conditions.push(`c.\"numPark\"=$${paramIndex}`);
         values.push(req.query.numPark);
         paramIndex++;
     }
-    
+
     if (req.query.startDate && req.query.endDate) {
         conditions.push(`c.\"dateDebut\" >= $${paramIndex} `);
         values.push(req.query.startDate);
@@ -145,9 +148,9 @@ exports.search = async (req, res) => {
         conditions.push(`c.\"dateDebut\" >= $${paramIndex}`);
         values.push(req.query.startDate);
         paramIndex++;
-    
+
     }
-    
+
     let sql = `
         SELECT c.*, 
          
@@ -160,14 +163,15 @@ exports.search = async (req, res) => {
         LEFT JOIN acc.vehicule v ON c."idVehicule" = v.idvehicule
         LEFT JOIN acc.chauffeur ch ON c."idChaff" = ch.id_chauf
         LEFT JOIN acc.agence a ON c."idAgence" = a.id_agence
+        WHERE is_deleted = false
     `;
-    
+
     if (conditions.length > 0) {
         sql += " WHERE " + conditions.join(" AND ");
     }
-    
+
     db.query(sql, values, (err, result) => {
-        if (err) return res.status(500).json({error: err.message});
+        if (err) return res.status(500).json({ error: err.message });
         return res.status(200).json(result.rows);
     });
 };
@@ -179,34 +183,34 @@ exports.exportToPdf = async (req, res) => {
         let conditions = [];
         let values = [];
         let paramIndex = 1;
-        
+
         // Build dynamic query based on provided search parameters
         if (req.query.idVehicule) {
             conditions.push(`c.\"idVehicule\"=$${paramIndex}`);
             values.push(req.query.idVehicule);
             paramIndex++;
         }
-        
+
         if (req.query.idChaff) {
             conditions.push(`c.\"idChaff\"=$${paramIndex}`);
             values.push(req.query.idChaff);
             paramIndex++;
         }
-        
+
         if (req.query.idAgence) {
             conditions.push(`c.\"idAgence\"=$${paramIndex}`);
             values.push(req.query.idAgence);
             paramIndex++;
         }
-        
+
         if (req.query.numPark) {
             conditions.push(`c.\"numPark\"=$${paramIndex}`);
             values.push(req.query.numPark);
             paramIndex++;
         }
-        
+
         if (req.query.startDate && req.query.endDate) {
-            conditions.push(`c.\"dateDebut\" >= $${paramIndex} AND c.\"dateFin\" <= $${paramIndex+1}`);
+            conditions.push(`c.\"dateDebut\" >= $${paramIndex} AND c.\"dateFin\" <= $${paramIndex + 1}`);
             values.push(req.query.startDate);
             values.push(req.query.endDate);
             paramIndex += 2;
@@ -214,9 +218,9 @@ exports.exportToPdf = async (req, res) => {
             conditions.push(`c.\"dateDebut\" >= $${paramIndex}`);
             values.push(req.query.startDate);
             paramIndex++;
-        
+
         }
-        
+
         let sql = `
             SELECT c.*, 
             
@@ -229,27 +233,28 @@ exports.exportToPdf = async (req, res) => {
             LEFT JOIN acc.vehicule v ON c."idVehicule" = v.idvehicule
             LEFT JOIN acc.chauffeur ch ON c."idChaff" = ch.id_chauf
             LEFT JOIN acc.agence a ON c."idAgence" = a.id_agence
+            WHERE is_deleted = false
         `;
-        
+
         if (conditions.length > 0) {
             sql += " WHERE " + conditions.join(" AND ");
         }
-        
+
         // Execute query
         db.query(sql, values, async (err, result) => {
-            if (err) return res.status(500).json({error: err.message});
-            
+            if (err) return res.status(500).json({ error: err.message });
+
             const records = result.rows;
-            
+
             // Create a new PDF document
             const doc = new jsPDF();
-            
+
             // Add title
             doc.setFontSize(18);
             doc.text('Fuel Consumption Report', 14, 22);
             doc.setFontSize(11);
             doc.text(`Generated on: ${new Date().toLocaleDateString()}`, 14, 30);
-            
+
             // Add filters information if any
             let yPos = 38;
             if (req.query.startDate || req.query.endDate) {
@@ -264,13 +269,13 @@ exports.exportToPdf = async (req, res) => {
                 doc.text(`Date Range: ${dateRange}`, 14, yPos);
                 yPos += 8;
             }
-            
+
             // Prepare data for table
             const tableColumn = [
-                'ID', 'Park #', 'Fuel Qty', 'Kilometers', 'Start Date', 
+                'ID', 'Park #', 'Fuel Qty', 'Kilometers', 'Start Date',
                 'Vehicle', 'Driver', 'Agency'
             ];
-            
+
             const tableRows = records.map(record => [
                 record.idConsomation,
                 record.numPark,
@@ -280,7 +285,7 @@ exports.exportToPdf = async (req, res) => {
                 `${record.chauffeur_nom} ${record.chauffeur_prenom}`,
                 record.agence_nom
             ]);
-            
+
             // Generate the table
             autoTable(doc, {
                 startY: yPos,
@@ -289,11 +294,11 @@ exports.exportToPdf = async (req, res) => {
                 theme: 'striped',
                 headStyles: { fillColor: [66, 139, 202] }
             });
-            
+
             // Set response headers for PDF download
             res.setHeader('Content-Type', 'application/pdf');
             res.setHeader('Content-Disposition', 'attachment; filename=fuel-consumption-report.pdf');
-            
+
             // Send the PDF as response
             const pdfBuffer = Buffer.from(doc.output('arraybuffer'));
             res.send(pdfBuffer);

@@ -20,7 +20,7 @@ exports.create = async (req, res) => {
         const imagePath = req.file ? req.file.filename : null;  // Enregistrer juste le nom de l'image
 
         // Vérification d'existence
-        const checkSql = "SELECT * FROM acc.chauffeur WHERE matricule_chauf = $1";
+        const checkSql = "SELECT * FROM acc.chauffeur WHERE matricule_chauf = $1 AND is_deleted= false";
         const checkResult = await db.query(checkSql, [matricule_chauf]);
 
         if (checkResult.rows.length > 0) {
@@ -36,7 +36,7 @@ exports.create = async (req, res) => {
 };
 
 exports.list = async (req, res) => {
-    const sql = "SELECT * FROM acc.chauffeur";
+    const sql = "SELECT * FROM acc.chauffeur WHERE is_deleted= false";
     db.query(sql, (err, result) => {
         if (err) return res.status(500).json(err);
         return res.status(200).json(result.rows);
@@ -45,7 +45,7 @@ exports.list = async (req, res) => {
 
 exports.show = async (req, res) => {
     const { id_chauf } = req.params;
-    const sql = "SELECT * FROM acc.chauffeur WHERE id_chauf= $1 RETURNING *";
+    const sql = "SELECT * FROM acc.chauffeur WHERE id_chauf= $1 AND is_deleted= false RETURNING *";
     db.query(sql, [id_chauf], (err, result) => {
         if (err) return res.status(500).json(err);
         if (result.rows.length === 0) {
@@ -75,7 +75,9 @@ exports.update = async (req, res) => {
 
 exports.delete = async (req, res) => {
     const { id_chauf } = req.params;
-    const sql = "DELETE FROM acc.chauffeur WHERE id_chauf = $1 RETURNING *";
+    const sql = "UPDATE acc.chauffeur SET is_deleted = true WHERE id_chauf = $1 RETURNING id_chauf";
+
+    //const sql = "DELETE FROM acc.chauffeur WHERE id_chauf = $1 RETURNING *";
 
     db.query(sql, [id_chauf], (err, result) => {
         if (err) return res.status(500).json(err);

@@ -1,7 +1,7 @@
 const db = require("../db/db");
 
 exports.getAllName = async (req, res) => {
-    const sql = "SELECT nom FROM acc.chauffeur";
+    const sql = "SELECT nom FROM acc.chauffeur WHERE is_deleted = false";
 
     db.query(sql, (err, result) => {
         if (err) {

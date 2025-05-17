@@ -1,7 +1,7 @@
 const db = require("../db/db");
 
 exports.getAllNumparc = async (req, res) => {
-    const sql = "SELECT numparc FROM acc.vehicule";
+    const sql = "SELECT numparc FROM acc.vehicule WHERE is_deleted = false";
 
     db.query(sql, (err, result) => {
         if (err) {

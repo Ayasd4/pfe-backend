@@ -23,7 +23,7 @@ exports.create = async (req, res) => {
 
 //  Récupérer la liste des utilisateurs (sans mot de passe)
 exports.list = async (req, res) => {
-    const sql = "SELECT id, nom, prenom, telephone, email, roles FROM acc.utilisateur";//    const sql = "SELECT * FROM acc.utilisateur";
+    const sql = "SELECT id, nom, prenom, telephone, email, roles FROM acc.utilisateur WHERE is_deleted= false";//    const sql = "SELECT * FROM acc.utilisateur";
 
     db.query(sql, (err, result) => {
         if (err) return res.status(500).json(err);
@@ -34,7 +34,7 @@ exports.list = async (req, res) => {
 //  Récupérer un utilisateur spécifique (sans mot de passe)
 exports.show = async (req, res) => {
     const valueId = Number(req.params.id);
-    const sql = "SELECT id, nom, prenom, telephone, email, roles FROM acc.utilisateur where id=$1"; // select * from
+    const sql = "SELECT id, nom, prenom, telephone, email, roles FROM acc.utilisateur where id=$1 AND is_deleted= false"; // select * from
     db.query(sql, [valueId], (err, result) => {
         if (err) return res.status(500).json({ error: err.message });
         return res.status(200).json(result.rows);
@@ -68,7 +68,8 @@ exports.update = async (req, res) => {
 
 exports.delete = async (req, res) => {
     const { id } = req.params;
-    const sql = "DELETE FROM acc.utilisateur WHERE id = $1 RETURNING id, nom, prenom, email";
+    //const sql = "DELETE FROM acc.utilisateur WHERE id = $1 RETURNING id, nom, prenom, email";
+    const sql = "UPDATE acc.utilisateur SET is_deleted = true WHERE id = $1 RETURNING id";
 
     db.query(sql, [id], (err, result) => {
         if (err) return res.status(500).json(err);

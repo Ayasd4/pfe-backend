@@ -13,7 +13,7 @@ exports.getDemandeById = async (req, res) => {
     v.numparc
     FROM acc.demandes AS d
     JOIN acc.vehicule AS v ON d.id_vehicule = v.idvehicule
-    WHERE id_demande=$1
+    WHERE id_demande=$1 AND is_deleted = false
     `;
 
     db.query(sql, [id_demande], (err, result) => {
@@ -23,15 +23,3 @@ exports.getDemandeById = async (req, res) => {
 }
 
 
-
-
-
-/*exports.getDemande= async (req, res) =>{
-    //const { id_demande} = Number(req.params.id_demande)
-    sql= "SELECT id_demande From acc.demandes" // WHERE id_demande=$1
-
-    db.query(sql, (err, result) => {
-        if (err) return res.status(500).json({ error: err.message });
-        return res.status(200).json(result.rows);
-    });
-} */
