@@ -89,12 +89,12 @@ exports.search = async (req, res) => {
         diag.date_diagnostic,
         diag.heure_diagnostic
         FROM acc.diagnostic AS diag
-        JOIN acc.demandes AS d ON diag.id_demande = d.id_demande
-        JOIN acc.vehicule AS v ON d.id_vehicule = v.idvehicule
-        WHERE is_deleted = false`;
+        JOIN acc.demandes AS d ON diag.id_demande = d.id_demande AND d.is_deleted = false
+        JOIN acc.vehicule AS v ON d.id_vehicule = v.idvehicule AND v.is_deleted = false
+        WHERE diag.is_deleted = false`;
 
         if (conditions.length > 0) {
-            sql += " WHERE " + conditions.join(" AND ");
+            sql += " AND " + conditions.join(" AND ");
         }
 
         db.query(sql, values, (err, result) => {
@@ -131,10 +131,10 @@ exports.list = async (req, res) => {
     diag.date_diagnostic,
     diag.heure_diagnostic
     FROM acc.diagnostic AS diag
-    JOIN acc.demandes AS d ON diag.id_demande = d.id_demande
-    JOIN acc.vehicule AS v ON d.id_vehicule = v.idvehicule
-    JOIN acc.chauffeur AS c ON d.id_chauffeur = c.id_chauf
-    WHERE is_deleted= false;`;
+    JOIN acc.demandes AS d ON diag.id_demande = d.id_demande AND d.is_deleted = false
+    JOIN acc.vehicule AS v ON d.id_vehicule = v.idvehicule AND v.is_deleted = false
+    JOIN acc.chauffeur AS c ON d.id_chauffeur = c.id_chauf AND c.is_deleted = false
+    WHERE diag.is_deleted= false;`;
 
     db.query(sql, (err, result) => {
         if (err) return res.status(500).json({ error: err.message });

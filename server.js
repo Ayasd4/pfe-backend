@@ -32,6 +32,7 @@ const infosRouter = require('./routes/getInfoOrdre');
 const interventionRouter = require('./routes/intervention');
 const infosIntervRouter = require('./routes/getInfoIntervention');
 const getordreRouter = require("./routes/getOrdreById");
+const getdetailsRouter = require("./routes/detailsOrder");
 const uploadsRouter = require('./routes/uploads');
 const generateRouter = require('./routes/generateAllDemande');
 const agenceRouter = require('./routes/agence');
@@ -98,6 +99,8 @@ app.use('/dashboard', dashboardRouter);
 app.use('/disponibilite', dispoRouter);
 app.use('/ordreStat', ordreStatRouter);
 app.use('/statistiques', conStatistiqueRoutes);
+app.use('/getDetailsOrder', getdetailsRouter);
+
 
 
 app.listen(port, () => {

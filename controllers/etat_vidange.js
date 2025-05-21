@@ -11,13 +11,13 @@ exports.generateRapport = async (req, res) => {
         let values = [];
         let paramIndex = 1;
 
-        if (req.query.id_diagnostic) {
+        if (req.query.id_kilometrage) {
             conditions.push(`e.id_kilometrage = $${paramIndex}`);
             values.push(req.query.id_kilometrage);
             paramIndex++;
         }
 
-        if (req.query.id_atelier) {
+        if (req.query.km_derniere_vd) {
             conditions.push(`e.km_derniere_vd = $${paramIndex}`);
             values.push(req.query.km_derniere_vd);
             paramIndex++;
@@ -68,14 +68,14 @@ exports.generateRapport = async (req, res) => {
         e.reste_km,
         e.date
         FROM acc.etat_vidange AS e
-        JOIN acc.vehicule AS v ON e.id_vehicule = v.idvehicule
-        JOIN acc.kilometrage AS k ON e.id_kilometrage = k.id
+        JOIN acc.vehicule AS v ON e.id_vehicule = v.idvehicule AND v.is_deleted = false
+        JOIN acc.kilometrage AS k ON e.id_kilometrage = k.id AND k.is_deleted = false
         LEFT JOIN acc.vidanges AS vd ON e.km_derniere_vd = vd.km_vidange AND e.id_vehicule = vd.id_vehicule
-        WHERE is_deleted = false
+        WHERE e.is_deleted = false
         `;
 
         if (conditions.length > 0) {
-            sql += " WHERE " + conditions.join(" AND ");
+            sql += " AND " + conditions.join(" AND ");
         }
 
         // Exécution de la requête
@@ -122,13 +122,11 @@ exports.generateRapport = async (req, res) => {
             const tableRows = records.map(record => [
                 record.id_vidange,
                 record.numparc,
-                 record.calcul,
+                record.calcul,
                 new Date(record.date).toLocaleDateString(),
                 record.km_vidange,
                 record.km_prochaine_vd,
                 record.reste_km,
-
-                new Date(record.date).toLocaleDateString(),
             ]);
 
 
@@ -156,9 +154,6 @@ exports.generateRapport = async (req, res) => {
     }
 }
 
-
-
-
 exports.list = async (req, res) => {
     const sql = ` SELECT e.id_vidange,
         v.numparc,
@@ -169,10 +164,10 @@ exports.list = async (req, res) => {
         e.reste_km,
         e.date
         FROM acc.etat_vidange AS e
-        JOIN acc.vehicule AS v ON e.id_vehicule = v.idvehicule
-        JOIN acc.kilometrage AS k ON e.id_kilometrage = k.id
+        JOIN acc.vehicule AS v ON e.id_vehicule = v.idvehicule AND v.is_deleted = false
+        JOIN acc.kilometrage AS k ON e.id_kilometrage = k.id AND e.is_deleted = false
         LEFT JOIN acc.vidanges AS vd ON e.km_derniere_vd = vd.km_vidange AND e.id_vehicule = vd.id_vehicule
-        WHERE is_deleted= false
+        WHERE e.is_deleted= false
         `;
 
     db.query(sql, (err, result) => {
@@ -211,19 +206,23 @@ exports.create = async (req, res) => {
         const id_vehicule = vehiculeResult.rows[0].idvehicule;
 
         //2. Récupérer le km actuelle(calcul) de la table kilometrage 
-        const KmQuery = `SELECT id FROM acc.kilometrage WHERE calcul=$1 AND "vehiculeId" = $2 ORDER BY date DESC LIMIT 1`;
+               // const KmQuery = `SELECT id FROM acc.kilometrage WHERE calcul= $1 AND "vehiculeId" = $2 AND is_deleted= false ORDER BY date DESC LIMIT 1`;
+        const KmQuery = `SELECT id FROM acc.kilometrage WHERE calcul= $1 AND "vehiculeId" = $2 ORDER BY date DESC LIMIT 1`;
+        //const KmResult = await db.query(KmQuery, [calcul, id_vehicule]);
         const KmResult = await db.query(KmQuery, [calcul, id_vehicule]);
         if (KmResult.rows.length === 0) {
             return res.status(400).json({ error: "Matching mileage not found!" });
         }
         const id_kilometrage = KmResult.rows[0].id;
+        //const KmActuel = KmResult.rows[0].calcul;
+
         const KmActuel = calcul;
 
         //3. Récupérer le km derniere vidange de la table vidange
         const vidangeQuery = `
           SELECT km_vidange 
           FROM acc.vidanges 
-          WHERE id_vehicule = $1 AND is_deleted= false
+          WHERE id_vehicule = $1
           ORDER BY id_vd DESC 
           LIMIT 1
         `;
@@ -241,8 +240,7 @@ exports.create = async (req, res) => {
 
         const formattedDate = moment(date, 'YYYY-MM-DD').format("YYYY-MM-DD");
 
-        const sql = `INSERT INTO acc.etat_vidange(id_vehicule, id_kilometrage, km_derniere_vd, km_prochaine_vd, reste_km, date)
-        VALUES($1,$2,$3,$4,$5,$6) RETURNING *`;
+        const sql = `INSERT INTO acc.etat_vidange(id_vehicule, id_kilometrage, km_derniere_vd, km_prochaine_vd, reste_km, date) VALUES ($1,$2,$3,$4,$5,$6) RETURNING *`;
 
         db.query(sql, [id_vehicule, id_kilometrage, kmDerniereVidange, kmProchaineVidange, resteKm, formattedDate], (err, result) => {
             if (err) return res.status(200).json({ error: err.message });

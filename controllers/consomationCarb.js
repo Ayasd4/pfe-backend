@@ -13,10 +13,10 @@ exports.list = async (req, res) => {
             ch.matricule_chauf AS chauffeur_matricule,
             a.nom AS agence_nom
         FROM acc."consomationCarb" c
-        LEFT JOIN acc.vehicule v ON c."idVehicule" = v.idvehicule
-        LEFT JOIN acc.chauffeur ch ON c."idChaff" = ch.id_chauf
+        LEFT JOIN acc.vehicule v ON c."idVehicule" = v.idvehicule AND v.is_deleted = false
+        LEFT JOIN acc.chauffeur ch ON c."idChaff" = ch.id_chauf AND ch.is_deleted = false
         LEFT JOIN acc.agence a ON c."idAgence" = a.id_agence
-        WHERE is_deleted = false
+        WHERE c.is_deleted = false
     `;
     db.query(sql, (err, result) => {
         if (err) return res.status(500).json({ error: err.message });
@@ -29,17 +29,16 @@ exports.show = async (req, res) => {
     const valueId = Number(req.params.idConsomation);
     const sql = `
         SELECT c.*, 
-      
             v.numparc AS vehicule_numparc,
             ch.nom AS chauffeur_nom, 
             ch.prenom AS chauffeur_prenom,
             ch.matricule_chauf AS chauffeur_matricule,
             a.nom AS agence_nom
         FROM acc."consomationCarb" c
-        LEFT JOIN acc.vehicule v ON c."idVehicule" = v.idvehicule
-        LEFT JOIN acc.chauffeur ch ON c."idChaff" = ch.id_chauf
+        LEFT JOIN acc.vehicule v ON c."idVehicule" = v.idvehicule AND v.is_deleted = false
+        LEFT JOIN acc.chauffeur ch ON c."idChaff" = ch.id_chauf AND ch.is_deleted = false
         LEFT JOIN acc.agence a ON c."idAgence" = a.id_agence
-        WHERE c."idConsomation" = $1 AND is_deleted = false
+        WHERE c."idConsomation" = $1 AND c.is_deleted = false
     `;
     db.query(sql, [valueId], (err, result) => {
         if (err) return res.status(500).json({ error: err.message });
@@ -160,14 +159,14 @@ exports.search = async (req, res) => {
             ch.matricule_chauf AS chauffeur_matricule,
             a.nom AS agence_nom
         FROM acc."consomationCarb" c
-        LEFT JOIN acc.vehicule v ON c."idVehicule" = v.idvehicule
-        LEFT JOIN acc.chauffeur ch ON c."idChaff" = ch.id_chauf
+        LEFT JOIN acc.vehicule v ON c."idVehicule" = v.idvehicule AND V.is_deleted = false
+        LEFT JOIN acc.chauffeur ch ON c."idChaff" = ch.id_chauf AND cH.is_deleted = false
         LEFT JOIN acc.agence a ON c."idAgence" = a.id_agence
-        WHERE is_deleted = false
+        WHERE c.is_deleted = false
     `;
 
     if (conditions.length > 0) {
-        sql += " WHERE " + conditions.join(" AND ");
+        sql += " AND " + conditions.join(" AND ");
     }
 
     db.query(sql, values, (err, result) => {
@@ -230,10 +229,10 @@ exports.exportToPdf = async (req, res) => {
                 ch.matricule_chauf AS chauffeur_matricule,
                 a.nom AS agence_nom
             FROM acc."consomationCarb" c
-            LEFT JOIN acc.vehicule v ON c."idVehicule" = v.idvehicule
-            LEFT JOIN acc.chauffeur ch ON c."idChaff" = ch.id_chauf
-            LEFT JOIN acc.agence a ON c."idAgence" = a.id_agence
-            WHERE is_deleted = false
+            LEFT JOIN acc.vehicule v ON c."idVehicule" = v.idvehicule AND v.is_deleted = false
+            LEFT JOIN acc.chauffeur ch ON c."idChaff" = ch.id_chauf AND c.is_deleted = false
+            LEFT JOIN acc.agence a ON c."idAgence" = a.id_agence AND a.is_deleted = false
+            WHERE c.is_deleted = false
         `;
 
         if (conditions.length > 0) {

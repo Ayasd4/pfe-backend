@@ -206,12 +206,14 @@ exports.search = async (req, res) => {
         c.telephone,
         c.email
         FROM acc.demandes AS d
-        JOIN acc.vehicule AS v ON d.id_vehicule = v.idvehicule
-        JOIN acc.chauffeur AS c ON d.id_chauffeur = c.id_chauf
-        WHERE is_deleted = false`;
+        JOIN acc.vehicule AS v ON d.id_vehicule = v.idvehicule AND v.is_deleted = false
+        JOIN acc.chauffeur AS c ON d.id_chauffeur = c.id_chauf AND c.is_deleted = false
+        WHERE d.is_deleted = false`;
 
         if (conditions.length > 0) {
-            sql += " WHERE " + conditions.join(" AND ");
+            sql += " AND " + conditions.join(" AND ");
+
+            //sql += " WHERE " + conditions.join(" AND ");
         }
 
         db.query(sql, values, (err, result) => {
@@ -243,9 +245,9 @@ exports.list = async (req, res) => {
     c.email,
     d.statut
     FROM acc.demandes AS d
-    JOIN acc.vehicule AS v ON d.id_vehicule = v.idvehicule
-    JOIN acc.chauffeur AS c ON d.id_chauffeur = c.id_chauf
-    WHERE is_deleted = false;`;
+    JOIN acc.vehicule AS v ON d.id_vehicule = v.idvehicule AND v.is_deleted = false
+    JOIN acc.chauffeur AS c ON d.id_chauffeur = c.id_chauf AND c.is_deleted = false
+    WHERE d.is_deleted= false`;
 
     db.query(sql, (err, result) => {
         if (err) return res.status(500).json({ error: err.message });
@@ -256,7 +258,7 @@ exports.list = async (req, res) => {
 
 exports.show = async (req, res) => {
     const id_demande = Number(req.params.id_demande);
-    const sql = "SELECT * FROM acc.demandes WHERE id_demande=$1 AND is_deleted = false";
+    const sql = "SELECT * FROM acc.demandes WHERE id_demande=$1 AND is_deleted = false RETURNING *";
 
     db.query(sql, [id_demande], (err, result) => {
         if (err) return res.status(500).json({ error: err.message });
@@ -303,9 +305,9 @@ exports.create = async (req, res) => {
 
         // 4. Insérer la demande dans la base de données
         const sql = `
-      INSERT INTO acc.demandes (date_demande, type_avarie, description, date_avarie, heure_avarie, statut= 'En attente', id_vehicule, id_chauffeur)
+      INSERT INTO acc.demandes (date_demande, type_avarie, description, date_avarie, heure_avarie, statut, id_vehicule, id_chauffeur)
       VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
-      RETURNING id_demande, date_demande, type_avarie, description, date_avarie, heure_avarie, statut, id_vehicule, id_chauffeur
+      RETURNING id_demande, date_demande, type_avarie, description, date_avarie, heure_avarie, 'En attente', id_vehicule, id_chauffeur
     `;
         const result = await db.query(sql, [formattedDateDemande, type_avarie, description, formattedDateAvarie, heure_avarie, statut, id_vehicule, id_chauffeur]);
 

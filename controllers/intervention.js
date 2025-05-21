@@ -33,14 +33,14 @@ exports.generatePdf = async (req, res) => {
     a.telephone,
     a.email
     FROM acc.intervention AS i
-    JOIN acc.ordre_travail AS o ON i.id_ordre = o.id_ordre
+    JOIN acc.ordre_travail AS o ON i.id_ordre = o.id_ordre AND o.is_deleted = false
     LEFT JOIN acc.travaux AS t ON o.id_travaux = t.id_travaux
-    JOIN acc.technicien AS tech ON i.id_technicien = tech.id_technicien
-    JOIN acc.atelier AS a ON i.id_atelier = a.id_atelier
-    JOIN acc.diagnostic AS diag ON o.id_diagnostic = diag.id_diagnostic
-    JOIN acc.demandes AS d ON diag.id_demande = d.id_demande
-    JOIN acc.vehicule AS v ON d.id_vehicule = v.idvehicule
-    WHERE id_intervention = $1 AND is_deleted = false`;
+    JOIN acc.technicien AS tech ON i.id_technicien = tech.id_technicien AND tech.is_deleted = false
+    JOIN acc.atelier AS a ON i.id_atelier = a.id_atelier AND a.is_deleted = false
+    JOIN acc.diagnostic AS diag ON o.id_diagnostic = diag.id_diagnostic AND diag.is_deleted = false
+    JOIN acc.demandes AS d ON diag.id_demande = d.id_demande AND d.is_deleted = false
+    JOIN acc.vehicule AS v ON d.id_vehicule = v.idvehicule AND v.is_deleted = false
+    WHERE id_intervention = $1 AND i.is_deleted = false`;
 
 
         db.query(sql, [id_intervention], (err, result) => {
@@ -237,17 +237,18 @@ exports.search = async (req, res) => {
     a.telephone,
     a.email
     FROM acc.intervention AS i
-    JOIN acc.ordre_travail AS o ON i.id_ordre = o.id_ordre
-    JOIN acc.technicien AS tech ON i.id_technicien = tech.id_technicien
-    JOIN acc.atelier AS a ON i.id_atelier = a.id_atelier
-    JOIN acc.diagnostic AS diag ON o.id_diagnostic = diag.id_diagnostic
-    JOIN acc.demandes AS d ON diag.id_demande = d.id_demande
-    JOIN acc.vehicule AS v ON d.id_vehicule = v.idvehicule
-    WHERE is_deleted = false
+    JOIN acc.ordre_travail AS o ON i.id_ordre = o.id_ordre AND o.is_deleted = false
+    JOIN acc.travaux AS t ON o.id_travaux = t.id_travaux
+    JOIN acc.technicien AS tech ON i.id_technicien = tech.id_technicien AND tech.is_deleted = false
+    JOIN acc.atelier AS a ON i.id_atelier = a.id_atelier AND a.is_deleted = false
+    JOIN acc.diagnostic AS diag ON o.id_diagnostic = diag.id_diagnostic AND diag.is_deleted = false
+    JOIN acc.demandes AS d ON diag.id_demande = d.id_demande AND d.is_deleted = false
+    JOIN acc.vehicule AS v ON d.id_vehicule = v.idvehicule AND v.is_deleted = false
+    WHERE i.is_deleted = false
     `;
 
         if (conditions.length > 0) {
-            sql += " WHERE " + conditions.join(" AND ");
+            sql += " AND " + conditions.join(" AND ");
         }
 
         db.query(sql, values, (err, result) => {
@@ -281,14 +282,14 @@ exports.list = async (req, res) => {
     a.telephone,
     a.email
     FROM acc.intervention AS i
-    JOIN acc.ordre_travail AS o ON i.id_ordre = o.id_ordre
+    JOIN acc.ordre_travail AS o ON i.id_ordre = o.id_ordre AND o.is_deleted = false
     JOIN acc.travaux AS t ON o.id_travaux = t.id_travaux
-    JOIN acc.technicien AS tech ON i.id_technicien = tech.id_technicien
-    JOIN acc.atelier AS a ON i.id_atelier = a.id_atelier
-    JOIN acc.diagnostic AS diag ON o.id_diagnostic = diag.id_diagnostic
-    JOIN acc.demandes AS d ON diag.id_demande = d.id_demande
-    JOIN acc.vehicule AS v ON d.id_vehicule = v.idvehicule
-    WHERE is_deleted = false;`;
+    JOIN acc.technicien AS tech ON i.id_technicien = tech.id_technicien AND tech.is_deleted = false
+    JOIN acc.atelier AS a ON i.id_atelier = a.id_atelier AND a.is_deleted = false
+    JOIN acc.diagnostic AS diag ON o.id_diagnostic = diag.id_diagnostic AND diag.is_deleted = false
+    JOIN acc.demandes AS d ON diag.id_demande = d.id_demande AND d.is_deleted = false
+    JOIN acc.vehicule AS v ON d.id_vehicule = v.idvehicule AND v.is_deleted = false
+    WHERE i.is_deleted = false;`;
 
     db.query(sql, (err, result) => {
         if (err) return res.status(500).json({ error: err.message });

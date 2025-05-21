@@ -90,17 +90,17 @@ exports.generateRapport = async (req, res) => {
                 tech.specialite,
                 v.numparc
             FROM acc.ordre_travail AS o
-            JOIN acc.diagnostic AS diag ON o.id_diagnostic = diag.id_diagnostic
+            JOIN acc.diagnostic AS diag ON o.id_diagnostic = diag.id_diagnostic AND diag.is_deleted= false
             LEFT JOIN acc.travaux AS t ON o.id_travaux = t.id_travaux
-            JOIN acc.atelier AS a ON o.id_atelier = a.id_atelier
-            JOIN acc.technicien AS tech ON o.id_technicien = tech.id_technicien
-            JOIN acc.demandes AS d ON diag.id_demande = d.id_demande
-            JOIN acc.vehicule AS v ON d.id_vehicule = v.idvehicule
-            WHERE is_deleted= false
+            JOIN acc.atelier AS a ON o.id_atelier = a.id_atelier AND a.is_deleted= false
+            JOIN acc.technicien AS tech ON o.id_technicien = tech.id_technicien AND tech.is_deleted= false
+            JOIN acc.demandes AS d ON diag.id_demande = d.id_demande AND d.is_deleted= false
+            JOIN acc.vehicule AS v ON d.id_vehicule = v.idvehicule AND v.is_deleted= false
+            WHERE o.is_deleted= false
         `;
 
         if (conditions.length > 0) {
-            sql += " WHERE " + conditions.join(" AND ");
+            sql += " AND " + conditions.join(" AND ");
         }
 
         // Exécution de la requête
@@ -437,17 +437,17 @@ exports.search = async (req, res) => {
     tech.specialite,
     v.numparc
     FROM acc.ordre_travail AS o
-    JOIN acc.diagnostic AS diag ON o.id_diagnostic = diag.id_diagnostic
-    LEFT JOIN acc.travaux AS t ON o.id_travaux = t.id_travaux
-    JOIN acc.atelier AS a ON o.id_atelier = a.id_atelier
-    JOIN acc.technicien AS tech ON o.id_technicien = tech.id_technicien
-    JOIN acc.demandes AS d ON diag.id_demande = d.id_demande
-    JOIN acc.vehicule AS v ON d.id_vehicule = v.idvehicule
-    WHERE is_deleted= false`;
+    JOIN acc.diagnostic AS diag ON o.id_diagnostic = diag.id_diagnostic AND diag.is_deleted= false
+    LEFT JOIN acc.travaux AS t ON o.id_travaux = t.id_travaux 
+    JOIN acc.atelier AS a ON o.id_atelier = a.id_atelier AND a.is_deleted= false
+    JOIN acc.technicien AS tech ON o.id_technicien = tech.id_technicien AND tech.is_deleted= false
+    JOIN acc.demandes AS d ON diag.id_demande = d.id_demande AND d.is_deleted= false
+    JOIN acc.vehicule AS v ON d.id_vehicule = v.idvehicule AND v.is_deleted= false
+    WHERE o.is_deleted= false`;
 
 
         if (conditions.length > 0) {
-            sql += " WHERE " + conditions.join(" AND ");
+            sql += " AND " + conditions.join(" AND ");
         }
 
         db.query(sql, values, (err, result) => {
@@ -487,13 +487,13 @@ exports.list = async (req, res) => {
     tech.specialite,
     v.numparc
     FROM acc.ordre_travail AS o
-    JOIN acc.diagnostic AS diag ON o.id_diagnostic = diag.id_diagnostic
+    JOIN acc.diagnostic AS diag ON o.id_diagnostic = diag.id_diagnostic AND diag.is_deleted= false
     LEFT JOIN acc.travaux AS t ON o.id_travaux = t.id_travaux
-    JOIN acc.atelier AS a ON o.id_atelier = a.id_atelier
-    JOIN acc.technicien AS tech ON o.id_technicien = tech.id_technicien
-    JOIN acc.demandes AS d ON diag.id_demande = d.id_demande
-    JOIN acc.vehicule AS v ON d.id_vehicule = v.idvehicule
-    WHERE is_deleted= false;`;
+    JOIN acc.atelier AS a ON o.id_atelier = a.id_atelier AND a.is_deleted= false
+    JOIN acc.technicien AS tech ON o.id_technicien = tech.id_technicien AND tech.is_deleted= false
+    JOIN acc.demandes AS d ON diag.id_demande = d.id_demande AND d.is_deleted= false
+    JOIN acc.vehicule AS v ON d.id_vehicule = v.idvehicule AND v.is_deleted= false
+    WHERE o.is_deleted= false;`;
 
     //-- Jointure avec demandes
     //-- Jointure avec vehicule à partir de demandes

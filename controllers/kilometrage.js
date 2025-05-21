@@ -10,9 +10,9 @@ exports.list = async (req, res) => {
             ch.prenom AS chauffeur_prenom,
             ch.matricule_chauf AS chauffeur_matricule
         FROM acc.kilometrage k
-        LEFT JOIN acc.vehicule v ON k."vehiculeId" = v.idvehicule
-        LEFT JOIN acc.chauffeur ch ON k."driverId" = ch.id_chauf
-        WHERE is_deleted = false
+        LEFT JOIN acc.vehicule v ON k."vehiculeId" = v.idvehicule AND v.is_deleted= false
+        LEFT JOIN acc.chauffeur ch ON k."driverId" = ch.id_chauf AND ch.is_deleted= false
+        WHERE k.is_deleted = false
     `;
     db.query(sql, (err, result) => {
         if (err) return res.status(500).json({ error: err.message });
@@ -31,9 +31,9 @@ exports.show = async (req, res) => {
             ch.prenom AS chauffeur_prenom,
             ch.matricule_chauf AS chauffeur_matricule
         FROM acc.kilometrage k
-        LEFT JOIN acc.vehicule v ON k."vehiculeId" = v.idvehicule
-        LEFT JOIN acc.chauffeur ch ON k."driverId" = ch.id_chauf
-        WHERE k.id = $1 AND is_deleted = false
+        LEFT JOIN acc.vehicule v ON k."vehiculeId" = v.idvehicule AND v.is_deleted= false
+        LEFT JOIN acc.chauffeur ch ON k."driverId" = ch.id_chauf AND ch.is_deleted= false
+        WHERE k.id = $1 AND k.is_deleted = false
     `;
     db.query(sql, [valueId], (err, result) => {
         if (err) return res.status(500).json({ error: err.message });
@@ -150,8 +150,8 @@ exports.getKilometrageByNumparc = async (req, res) => {
         const sql = `
             SELECT k.calcul
             FROM acc.kilometrage k
-            JOIN acc.vehicule v ON v.idvehicule = k."vehiculeId"
-            WHERE v.numparc = $1 AND is_deleted = false
+            JOIN acc.vehicule v ON v.idvehicule = k."vehiculeId" AND v.is_deleted = false
+            WHERE v.numparc = $1 AND k.is_deleted = false
             LIMIT 1
         `;
 

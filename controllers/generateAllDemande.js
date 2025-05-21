@@ -25,9 +25,9 @@ exports.genrateAllDemandes = async (req, res) => {
         c.telephone,
         c.email
         FROM acc.demandes AS d
-        JOIN acc.vehicule AS v ON d.id_vehicule = v.idvehicule
-        JOIN acc.chauffeur AS c ON d.id_chauffeur = c.id_chauf
-        WHERE is_deleted = false`;
+        JOIN acc.vehicule AS v ON d.id_vehicule = v.idvehicule AND v.is_deleted = false
+        JOIN acc.chauffeur AS c ON d.id_chauffeur = c.id_chauf AND c.is_deleted = false
+        WHERE d.is_deleted = false`;
 
         db.query(sql, (err, result) => {
             if (err) return res.status(500).json({ error: err.message });

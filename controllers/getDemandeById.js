@@ -12,8 +12,8 @@ exports.getDemandeById = async (req, res) => {
     d.description,
     v.numparc
     FROM acc.demandes AS d
-    JOIN acc.vehicule AS v ON d.id_vehicule = v.idvehicule
-    WHERE id_demande=$1 AND is_deleted = false
+    JOIN acc.vehicule AS v ON d.id_vehicule = v.idvehicule AND v.is_deleted = false
+    WHERE id_demande=$1 AND d.is_deleted = false
     `;
 
     db.query(sql, [id_demande], (err, result) => {

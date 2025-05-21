@@ -40,11 +40,11 @@ exports.search = async (req, res) => {
         vd.date_vidange,
         vd.km_vidange
         FROM acc.vidanges AS vd
-        JOIN acc.vehicule AS v ON vd.id_vehicule = v.idvehicule
-        WHERE is_deleted = false`;
+        JOIN acc.vehicule AS v ON vd.id_vehicule = v.idvehicule AND v.is_deleted= false
+        WHERE vd.is_deleted = false`;
 
         if (conditions.length > 0) {
-            sql += " WHERE " + conditions.join(" AND ");
+            sql += " AND " + conditions.join(" AND ");
         }
 
         db.query(sql, values, (err, result) => {
@@ -63,8 +63,8 @@ exports.list = async (req, res) => {
         vd.date_vidange,
         vd.km_vidange
         FROM acc.vidanges AS vd
-        JOIN acc.vehicule AS v ON vd.id_vehicule = v.idvehicule
-        WHERE is_deleted = false`;
+        JOIN acc.vehicule AS v ON vd.id_vehicule = v.idvehicule AND v.is_deleted= false
+        WHERE vd.is_deleted = false`;
     db.query(sql, (err, result) => {
         if (err) return res.status(500).json({ error: err.message });
         return res.status(200).json(result.rows);

@@ -11,8 +11,8 @@ exports.getAllOrdre = async (req, res) => {
                 o.planning,
                 o.date_ordre
             FROM acc.ordre_travail o
-            JOIN acc.travaux t ON o.id_travaux = t.id_travaux
-            WHERE is_deleted = false`;
+            JOIN acc.travaux t ON o.id_travaux = t.id_travaux 
+            WHERE o.is_deleted = false`;
 
         db.query(sql, (err, result) => {
             if (err) {
@@ -31,7 +31,7 @@ exports.getAllOrdre = async (req, res) => {
 }
 
 exports.getAllTechnicien = async (req, res) => {
-    const sql = "SELECT matricule_techn, nom, prenom, email_techn, specialite FROM acc.technicien";
+    const sql = "SELECT matricule_techn, nom, prenom, email_techn, specialite FROM acc.technicien WHERE is_deleted= false";
 
     db.query(sql, (err, result) => {
         if (err) {
@@ -48,7 +48,7 @@ exports.getAllTechnicien = async (req, res) => {
 
 
 exports.getAllAtelier = async (req, res) => {
-    const sql = "SELECT  nom_atelier, telephone, email FROM acc.atelier";
+    const sql = "SELECT  nom_atelier, telephone, email FROM acc.atelier WHERE is_deleted= false";
 
     db.query(sql, (err, result) => {
         if (err) {
