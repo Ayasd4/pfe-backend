@@ -1,7 +1,8 @@
 const db = require('../db/db');
 
 exports.getDetailsOrder = async (req, res) =>{
-    const id_ordre = Number(req.params.id_ordre);
+    //const id_ordre = Number(req.params.id_ordre);
+    const id_ordre = req.params.id_ordre;
 
     const sql = `SELECT o.id_ordre,
     diag.description_panne,
@@ -35,7 +36,7 @@ exports.getDetailsOrder = async (req, res) =>{
 
     db.query(sql, [id_ordre],(err, result) => {
         if (err) return res.status(500).json({ error: err.message });
-        return res.status(200).json(result.rows);
+        return res.status(200).json(result.rows[0]);
     });
 
 }
