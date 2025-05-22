@@ -102,7 +102,6 @@ app.use('/statistiques', conStatistiqueRoutes);
 app.use('/getDetailsOrder', getdetailsRouter);
 
 
-
 app.listen(port, () => {
     //if (err) throw err;
     console.log(`Server is now listening at port: ${port}`);

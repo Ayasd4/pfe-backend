@@ -4,7 +4,6 @@ exports.getDetailsOrder = async (req, res) =>{
     const id_ordre = Number(req.params.id_ordre);
 
     const sql = `SELECT o.id_ordre,
-    diag.id_diagnostic,
     diag.description_panne,
     diag.causes_panne,
     diag.actions,
@@ -14,12 +13,10 @@ exports.getDetailsOrder = async (req, res) =>{
     t.nom_travail,
     o.planning,
     o.date_ordre,
-    o.status,
     a.nom_atelier,
     a.telephone,
     a.email,
     a.capacite,
-    a.statut,
     tech.nom,
     tech.prenom,
     tech.matricule_techn,
