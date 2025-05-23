@@ -1,6 +1,6 @@
 const db = require('../db/db');
 
-exports.getDetailsOrder = async (req, res) =>{
+exports.getDetailsOrder = async (req, res) => {
     //const id_ordre = Number(req.params.id_ordre);
     const id_ordre = req.params.id_ordre;
 
@@ -10,8 +10,8 @@ exports.getDetailsOrder = async (req, res) =>{
     diag.actions,
     diag.date_diagnostic,
     diag.heure_diagnostic,
-    o.urgence_panne,
     t.nom_travail,
+    o.urgence_panne,
     o.planning,
     o.date_ordre,
     a.nom_atelier,
@@ -34,7 +34,7 @@ exports.getDetailsOrder = async (req, res) =>{
     JOIN acc.vehicule AS v ON d.id_vehicule = v.idvehicule AND v.is_deleted= false
     WHERE id_ordre= $1 AND o.is_deleted= false`;
 
-    db.query(sql, [id_ordre],(err, result) => {
+    db.query(sql, [id_ordre], (err, result) => {
         if (err) return res.status(500).json({ error: err.message });
         return res.status(200).json(result.rows[0]);
     });
