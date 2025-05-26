@@ -44,6 +44,8 @@ const dashboardRouter = require('./routes/dashboard');
 const dispoRouter = require('./routes/disponibilite');
 const ordreStatRouter = require('./routes/ordreStat');
 const conStatistiqueRoutes = require('./routes/conStatistique');
+const intervByOrdreRoutes = require("./routes/getIntervByOrdre");
+const intervStatRoutes = require("./routes/interventionStat");
 
 // Créer le serveur Node.js
 app.use(bodyParser.json());
@@ -100,6 +102,8 @@ app.use('/disponibilite', dispoRouter);
 app.use('/ordreStat', ordreStatRouter);
 app.use('/statistiques', conStatistiqueRoutes);
 app.use('/getDetailsOrder', getdetailsRouter);
+app.use('/intervByOrdre', intervByOrdreRoutes);
+app.use('/intervStat', intervStatRoutes);
 
 
 app.listen(port, () => {

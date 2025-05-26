@@ -262,6 +262,7 @@ exports.search = async (req, res) => {
 
 exports.list = async (req, res) => {
     sql = `SELECT i.id_intervention,
+    o.id_ordre,
     o.urgence_panne,
     t.nom_travail,
     o.planning,
@@ -317,8 +318,8 @@ exports.create = async (req, res) => {
         const { ordre, technicien, date_debut, heure_debut, date_fin, heure_fin, status_intervention, commentaire, atelier } = req.body;
 
         // Vérification que les données sont présentes
-        if (!ordre || !technicien) {
-            return res.status(400).json({ error: "Missing order or technician" });
+        if (!ordre || !technicien || !atelier) {
+            return res.status(400).json({ error: "Missing order, workshop or technician" });
         }
 
         const { nom_travail } = ordre;
@@ -326,7 +327,7 @@ exports.create = async (req, res) => {
         const { nom_atelier } = atelier;
 
         const ordreResult = await db.query(`SELECT o.id_ordre, t.nom_travail FROM acc.ordre_travail AS o
-            JOIN acc.travaux AS t ON o.id_travaux = t.id_travaux WHERE nom_travail = $1`, [nom_travail]);
+            JOIN acc.travaux AS t ON o.id_travaux = t.id_travaux WHERE nom_travail = $1 AND o.is_deleted= false`, [nom_travail]);
         if (ordreResult.rows.length === 0) {
             return res.status(400).json({ error: "order not found!" });
         }
@@ -338,7 +339,7 @@ exports.create = async (req, res) => {
         }
         const id_technicien = technicienResult.rows[0].id_technicien;
 
-        const atelierResult = await db.query("SELECT id_atelier FROM acc.atelier WHERE nom_atelier = $1", [nom_atelier]);
+        const atelierResult = await db.query("SELECT id_atelier FROM acc.atelier WHERE nom_atelier = $1 AND is_deleted = false", [nom_atelier]);
         if (atelierResult.rows.length === 0) {
             return res.status(400).json({ error: "workshops not found!" });
         }
@@ -385,7 +386,7 @@ exports.update = async (req, res) => {
         const { nom_atelier } = atelier;
 
         const ordreResult = await db.query(`SELECT o.id_ordre,t.nom_travail FROM acc.ordre_travail AS o
-            JOIN acc.travaux AS t ON o.id_travaux = t.id_travaux WHERE nom_travail = $1`, [nom_travail]);
+            JOIN acc.travaux AS t ON o.id_travaux = t.id_travaux WHERE nom_travail = $1 AND is_deleted = false`, [nom_travail]);
         if (ordreResult.rows.length === 0) {
             return res.status(400).json({ error: "order not found!" });
         }
@@ -456,9 +457,9 @@ exports.getOrdreByTravaux = async (req, res) => {
             o.urgence_panne,
             o.planning,
             o.date_ordre
-        FROM acc.ordre_travail o
-        JOIN acc.travaux t ON o.id_travaux = t.id_travaux
-        WHERE t.nom_travail = $1
+        FROM acc.ordre_travail AS o
+        JOIN acc.travaux AS t ON o.id_travaux = t.id_travaux
+        WHERE t.nom_travail = $1 AND o.is_deleted = false
     `;
 
     db.query(sql, [nom_travail], (err, result) => {
@@ -488,4 +489,3 @@ exports.getAtelierByNom = async (req, res) => {
         return res.status(200).json(result.rows[0]);
     });
 }
-

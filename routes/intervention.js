@@ -42,5 +42,8 @@ router.get('/ordre/:nom_travail', interventionController.getOrdreByTravaux);
 router.get('/technicien/:matricule_techn', interventionController.getTechnicienByMatricule);
 router.get('/atelier/:nom_atelier', interventionController.getAtelierByNom);
 
+router.get('/ordre/:id_ordre', async (req, res) => {
+    await interventionController.getIntervById(req, res);
+});
 
 module.exports = router;
