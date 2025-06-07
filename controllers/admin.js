@@ -72,6 +72,10 @@ exports.delete = async (req, res) => {
     }
 };
 
+
+
+
+
 /*exports.create = async(req, res) => {
     const { nom, prenom, email, password } = req.body;
     const sql = "INSERT INTO acc.admin (nom, prenom, email, password) VALUES ($1, $2, $3, $4) RETURNING *";

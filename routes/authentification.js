@@ -23,10 +23,3 @@ router.get("/checkToken", authenticateToken, authController.checkToken);
 router.post("/changePassword", authenticateToken, authController.changePassword);
 
 module.exports = router;
-
-
-
-// Route pour mettre à jour un utilisateur (par exemple, changer le mot de passe ou autres informations)
-/*router.patch('/users/:id', (req, res) => {
-    authController.updateUser(userId, { nom, prenom, telephone, email, password }, res);
-});*/

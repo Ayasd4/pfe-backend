@@ -147,7 +147,6 @@ exports.forgotPassword = async (req, res) => {
   }
 };
 
-
 exports.logout = async (req, res) => {
   res.cookie("jwt", "", { maxAge: 0 });
   res.status(200).json({ message: "logout successful" });

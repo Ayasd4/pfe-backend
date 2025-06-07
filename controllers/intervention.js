@@ -327,7 +327,7 @@ exports.create = async (req, res) => {
         const { nom_atelier } = atelier;
 
         const ordreResult = await db.query(`SELECT o.id_ordre, t.nom_travail FROM acc.ordre_travail AS o
-            JOIN acc.travaux AS t ON o.id_travaux = t.id_travaux WHERE nom_travail = $1 AND o.is_deleted= false`, [nom_travail]);
+            JOIN acc.travaux AS t ON o.id_travaux = t.id_travaux WHERE t.nom_travail = $1 AND o.is_deleted= false`, [nom_travail]);
         if (ordreResult.rows.length === 0) {
             return res.status(400).json({ error: "order not found!" });
         }
@@ -386,7 +386,7 @@ exports.update = async (req, res) => {
         const { nom_atelier } = atelier;
 
         const ordreResult = await db.query(`SELECT o.id_ordre,t.nom_travail FROM acc.ordre_travail AS o
-            JOIN acc.travaux AS t ON o.id_travaux = t.id_travaux WHERE nom_travail = $1 AND is_deleted = false`, [nom_travail]);
+            JOIN acc.travaux AS t ON o.id_travaux = t.id_travaux WHERE nom_travail = $1 AND o.is_deleted = false`, [nom_travail]);
         if (ordreResult.rows.length === 0) {
             return res.status(400).json({ error: "order not found!" });
         }
