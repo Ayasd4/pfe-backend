@@ -1,12 +1,17 @@
 const db = require("../db/db");
+const bcrypt = require("bcryptjs");
 
 
 exports.create = async (req, res) => {
     const { nom, prenom, email, password, roles } = req.body;
+
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(password, salt);
+
     const sql = "INSERT INTO acc.admin (nom, prenom, email, password, roles) VALUES ($1, $2, $3, $4, $5) RETURNING *";
-    
+
     try {
-        const result = await db.query(sql, [nom, prenom, email, password, roles]);
+        const result = await db.query(sql, [nom, prenom, email, hashedPassword, roles]);
         return res.status(201).json(result.rows[0]);
     } catch (err) {
         console.error(err);
@@ -14,7 +19,7 @@ exports.create = async (req, res) => {
     }
 };
 
-exports.list = async(req, res) => {
+exports.list = async (req, res) => {
     const sql = "SELECT * FROM acc.admin";
     db.query(sql, (err, result) => {
         if (err) {
@@ -44,9 +49,16 @@ exports.show = async (req, res) => {
 exports.update = async (req, res) => {
     const { id } = req.params;
     const { nom, prenom, email, password, roles } = req.body;
-    const sql = "UPDATE acc.admin SET nom = $1, prenom = $2, email = $3, password = $4, roles=$5 WHERE id = $6 RETURNING *";
+
+    let hashedPassword = password;
+    if (password) {
+        const salt = await bcrypt.genSalt(10);
+        hashedPassword = await bcrypt.hash(password, salt);
+    }
+
+    const sql = "UPDATE acc.admin SET nom = $1, prenom = $2, email = $3, password = COALESCE($4, password), roles=$5 WHERE id = $6 RETURNING *";
     try {
-        const result = await db.query(sql, [nom, prenom, email, password,roles, id]);
+        const result = await db.query(sql, [nom, prenom, email, hashedPassword, roles, id]);
         if (result.rows.length === 0) {
             return res.status(404).json({ message: "Admin not found" });
         }
@@ -71,68 +83,3 @@ exports.delete = async (req, res) => {
         return res.status(500).json({ message: "Error deleting admin", error: err });
     }
 };
-
-
-
-
-
-/*exports.create = async(req, res) => {
-    const { nom, prenom, email, password } = req.body;
-    const sql = "INSERT INTO acc.admin (nom, prenom, email, password) VALUES ($1, $2, $3, $4) RETURNING *";
-    
-    db.query(sql, [nom, prenom, email, password], (err, result) => {
-        if (err) return res.status(500).json(err);
-        return res.status(201).json(result.rows[0]);
-    });
-}
-
-exports.list = async(req, res) => {
-    const sql = "SELECT * FROM acc.admin";
-    db.query(sql, (err, result) => {
-        if (err) return res.status(500).json(err);
-        return res.status(200).json(result.rows);
-    });
-}
-
-exports.show = async(req, res) => {
-    const { id } = req.params;
-    const { nom, prenom, email, password } = req.body;
-    const sql = "UPDATE acc.admin SET nom = $1, prenom = $2, email = $3, password = $4 WHERE id = $5 RETURNING *";
-    
-    db.query(sql, [nom, prenom, email, password, id], (err, result) => {
-        if (err) return res.status(500).json(err);
-        if (result.rows.length === 0) {
-            return res.status(404).json({ message: "Compte non trouvé" });
-        }
-        return res.status(200).json(result.rows[0]);
-    });
-}
-
-exports.update = async(req, res) => {
-    const { id } = req.params;
-    const { nom, prenom, email, password } = req.body;
-    const sql = "UPDATE acc.admin SET nom = $1, prenom = $2, email = $3, password = $4 WHERE id = $5 RETURNING *";
-    
-    db.query(sql, [nom, prenom, email, password, id], (err, result) => {
-        if (err) return res.status(500).json(err);
-        if (result.rows.length === 0) {
-            return res.status(404).json({ message: "Compte non trouvé" });
-        }
-        return res.status(200).json(result.rows[0]);
-    });
-}
-
-
-exports.delete = async(req, res) => {
-    const { id } = req.params;
-    const sql = "DELETE FROM acc.admin WHERE id = $1 RETURNING *";
-    
-    db.query(sql, [id], (err, result) => {
-        if (err) return res.status(500).json(err);
-        if (result.rows.length === 0) {
-            return res.status(404).json({ message: "Compte non trouvé" });
-        }
-        return res.status(200).json({ message: "Compte supprimé avec succès", deletedAdmin: result.rows[0] });
-    });
-}
-*/

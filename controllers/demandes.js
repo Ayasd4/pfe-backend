@@ -270,7 +270,7 @@ exports.show = async (req, res) => {
 exports.create = async (req, res) => {
     try {
         // Extraction des données depuis le corps de la requête
-        const { date_demande, type_avarie, description, date_avarie, heure_avarie, statut, vehicule, chauffeur } = req.body;
+        const { date_demande, type_avarie, description, date_avarie, heure_avarie, vehicule, chauffeur } = req.body;
 
         // Vérification que les données du véhicule et du chauffeur sont présentes
         if (!vehicule || !chauffeur) {
@@ -303,6 +303,8 @@ exports.create = async (req, res) => {
         const formattedDateDemande = moment(date_demande, 'YYYY-MM-DD').format("YYYY-MM-DD");
         const formattedDateAvarie = moment(date_avarie, 'YYYY-MM-DD').format("YYYY-MM-DD");
 
+        const statut = 'En attente';
+
         // 4. Insérer la demande dans la base de données
         const sql = `
       INSERT INTO acc.demandes (date_demande, type_avarie, description, date_avarie, heure_avarie, statut, id_vehicule, id_chauffeur)
@@ -326,7 +328,7 @@ exports.update = async (req, res) => {
         const id_demande = Number(req.params.id_demande);
 
         // Extraction des données depuis le corps de la requête
-        const { date_demande, type_avarie, description, date_avarie, heure_avarie, statut, vehicule, chauffeur } = req.body;
+        const { date_demande, type_avarie, description, date_avarie, heure_avarie, vehicule, chauffeur } = req.body;
 
         // Vérification que l'ID de la demande est bien fourni
         if (!id_demande) {
@@ -365,6 +367,8 @@ exports.update = async (req, res) => {
         // 3. Formater les dates
         const formattedDateDemande = moment(date_demande, 'YYYY-MM-DD').format("YYYY-MM-DD");
         const formattedDateAvarie = moment(date_avarie, 'YYYY-MM-DD').format("YYYY-MM-DD");
+        
+        const statut = 'En attente';
 
         // 4. Mettre à jour la demande dans la base de données
         const sql = `

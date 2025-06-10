@@ -72,7 +72,7 @@ app.use('/vehicules', vehiculeRouter);
 app.use('/utilisateur', utilisateurRouter);
 app.use('/authentification', authentificationRouter);
 app.use('/admins', adminRouter);
-app.use('/login', authRouter);
+app.use('/adminn', authRouter);
 app.use('/chauffeur',chauffeurRouter);
 app.use('/demandes', demandesRouter);
 app.use('/getAllNumparc', numparcRouter);

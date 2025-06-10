@@ -12,8 +12,6 @@ const nodemailer = require('nodemailer');
 const authenticate = require('../middleware/authMiddleware');
 const checkRole = require('../middleware/checkRole');
 
-//const { user } = require("../routes/authentification");
-
 
 exports.register = async (req, res) => {
   try {
@@ -34,7 +32,6 @@ exports.register = async (req, res) => {
   }
 };
 
-//const secret = process.env.JWT_SECRET;
 
 exports.login = async (req, res) => {
   try {
@@ -227,9 +224,6 @@ exports.changePassword = async (req, res) => {
 
       const hashedPassword = result.rows[0].password;
 
-      //console.log(result);
-      //console.log(result.rows[0].password);
-
       // Vérifier si l'ancien mot de passe est correct
       const isMatch = await bcrypt.compare(oldPassword, hashedPassword);
       if (!isMatch) {
@@ -255,71 +249,3 @@ exports.changePassword = async (req, res) => {
     return res.status(500).json({ error: "Internal server error" });
   }
 };
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-/*exports.login = async (req, res) => {
-  try {
-    const { email, password } = req.body;
-    const sql = "SELECT * FROM acc.utilisateur WHERE email = $1";
-
-    db.query(sql, [email], async (err, result) => {
-      if (err) return res.status(500).json({ error: err.message });
-      if (result.rows.length === 0) return res.status(404).json({ message: "User not found!" });
-
-      const utilisateur = result.rows[0];
-
-      if (!await bcrypt.compare(password, utilisateur.password)) {
-        return res.status(400).json({ message: "Incorrect password!" });
-      }
-
-      /*const token = jwt.sign(
-              { id: user.id, email: user.email, roles: user.roles },
-              process.env.JWT_SECRET,
-              { expiresIn: process.env.JWT_EXPIRES_IN }
-          );
-
-          res.json({ token, user: { id: user.id, nom: user.nom, roles: user.roles } }); 
-
-          const token = jwt.sign({ id: utilisateur.id, roles: utilisateur.roles }, "secret", { expiresIn: "1d" });
-
-          res.cookie("jwt", token, {
-            httpOnly: true,
-            maxAge: 24 * 60 * 60 * 1000
-          });
-    
-          res.status(200).json({ message: "Connection successful", token });
-        });
-    
-      } catch (error) {
-        res.status(500).json({ error: "Internal server error" });
-      }
-    }; */
-
-
-/*var mailOptions = {
-  from: process.env.EMAIL,
-  to: email,//utilisateur.email,//sdiriaya488@mailinator.com'
-  subject:  'test email', //'Password de gestion de flotte'
-  html: `<p><b>Your login details for fleet management</b><br>
-         <b>Email:</b> ${utilisateur.email}<br>
-         <b>Password:</b> ${utilisateur.password}<br>
-         <a href="http://localhost:4200/">Click here to login</a></p>`
-};*/
