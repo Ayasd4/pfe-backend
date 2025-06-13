@@ -7,7 +7,7 @@ exports.totalConsomationByVehiculeAndMonth = async (req, res) => {
         const numparc = req.params.numparc;
 
          // Vérifier si le véhicule existe d'abord
-         const checkVehicule = await db.query('SELECT numparc FROM acc.vehicule WHERE numparc = $1', [numparc]);
+         const checkVehicule = await db.query('SELECT numparc FROM acc.vehicule WHERE numparc = $1 AND is_deleted= false', [numparc]);
 
 
          if (checkVehicule.rows.length === 0) {
@@ -20,7 +20,7 @@ exports.totalConsomationByVehiculeAndMonth = async (req, res) => {
                  EXTRACT(MONTH FROM c."dateDebut") AS mois,
                  SUM(c."QteCarb") AS total_consommation
              FROM acc."consomationCarb" c
-             WHERE c."numPark" = $1
+             WHERE c."numPark" = $1 AND c.is_deleted= false
              GROUP BY c."numPark", annee, mois
              ORDER BY annee, mois
          `;

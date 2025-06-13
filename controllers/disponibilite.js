@@ -2,7 +2,7 @@ const db = require("../db/db");
 
 exports.vehiculeEnService = async (req, res) => {
     try {
-        const sql = `SELECT COUNT(*) AS total FROM acc.vehicule WHERE etat = $1`;
+        const sql = `SELECT COUNT(*) AS total FROM acc.vehicule WHERE etat = $1 AND is_deleted= false`;
         const result = await db.query(sql, ['en_service']);
         return res.status(200).json({ total: result.rows[0].total });
     } catch (error) {
@@ -13,7 +13,7 @@ exports.vehiculeEnService = async (req, res) => {
 
 exports.vehiculeEnMaintenance = async (req, res) => {
     try {
-        const sql = `SELECT COUNT(*) AS total FROM acc.vehicule WHERE etat = $1`;
+        const sql = `SELECT COUNT(*) AS total FROM acc.vehicule WHERE etat = $1 AND is_deleted= false`;
         const result = await db.query(sql, ['en_maintenance']);
         return res.status(200).json({ total: result.rows[0].total });
     } catch (error) {
@@ -24,7 +24,7 @@ exports.vehiculeEnMaintenance = async (req, res) => {
 
 exports.vehiculeEnPanne = async (req, res) => {
     try {
-        const sql = `SELECT COUNT(*) AS total FROM acc.vehicule WHERE etat = $1`;
+        const sql = `SELECT COUNT(*) AS total FROM acc.vehicule WHERE etat = $1 AND is_deleted= false`;
         const result = await db.query(sql, ['en_panne']);
         return res.status(200).json({ total: result.rows[0].total });
     } catch (error) {
@@ -35,8 +35,8 @@ exports.vehiculeEnPanne = async (req, res) => {
 
 exports.dispoVehiculeEnService = async (req, res) => {
     try {
-        const enServiceSql = `SELECT COUNT(*) AS total FROM acc.vehicule WHERE etat = $1`;
-        const totalSql = "SELECT COUNT(*) AS total FROM acc.vehicule";
+        const enServiceSql = `SELECT COUNT(*) AS total FROM acc.vehicule WHERE etat = $1 AND is_deleted= false`;
+        const totalSql = "SELECT COUNT(*) AS total FROM acc.vehicule WHERE is_deleted= false";
 
         const resultEnServiceSql = await db.query(enServiceSql, ['en_service']);
         const resultTotalSql = await db.query(totalSql);
@@ -56,8 +56,8 @@ exports.dispoVehiculeEnService = async (req, res) => {
 
 exports.dispoVehiculeEnMaintenance = async (req, res) => {
     try {
-        const enMaintSql = `SELECT COUNT(*) AS total FROM acc.vehicule WHERE etat = $1`;
-        const totalSql = "SELECT COUNT(*) AS total FROM acc.vehicule";
+        const enMaintSql = `SELECT COUNT(*) AS total FROM acc.vehicule WHERE etat = $1 AND is_deleted= false`;
+        const totalSql = "SELECT COUNT(*) AS total FROM acc.vehicule WHERE is_deleted= false";
 
         const resultEnMaintSql = await db.query(enMaintSql, ['en_maintenance']);
         const resultTotalSql = await db.query(totalSql);
@@ -77,8 +77,8 @@ exports.dispoVehiculeEnMaintenance = async (req, res) => {
 
 exports.dispoVehiculeEnPanne = async (req, res) => {
     try {
-        const enPanneSql = `SELECT COUNT(*) AS total FROM acc.vehicule WHERE etat = $1`;
-        const totalSql = "SELECT COUNT(*) AS total FROM acc.vehicule";
+        const enPanneSql = `SELECT COUNT(*) AS total FROM acc.vehicule WHERE etat = $1 AND is_deleted= false`;
+        const totalSql = "SELECT COUNT(*) AS total FROM acc.vehicule WHERE is_deleted= false";
 
         const resultEnPanneSql = await db.query(enPanneSql, ['en_panne']);
         const resultTotalSql = await db.query(totalSql);

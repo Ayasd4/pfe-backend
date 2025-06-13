@@ -2,7 +2,7 @@ const db = require('../db/db');
 
 exports.countOrdreOuvert = async (req, res) => {
     try {
-        const sql = "SELECT COUNT(*) AS total FROM acc.ordre_travail WHERE status= $1";
+        const sql = "SELECT COUNT(*) AS total FROM acc.ordre_travail WHERE status= $1 AND is_deleted= false";
         const result = await db.query(sql, ['Ouvert']);
         console.log("total open order", result.rows[0].total);
         return res.status(200).json({ total: result.rows[0].total});
@@ -13,7 +13,7 @@ exports.countOrdreOuvert = async (req, res) => {
 
 exports.countOrdreEnCours = async (req, res) => {
     try {
-        const sql = "SELECT COUNT(*) AS total FROM acc.ordre_travail WHERE status= $1";
+        const sql = "SELECT COUNT(*) AS total FROM acc.ordre_travail WHERE status= $1 AND is_deleted= false";
         const result = await db.query(sql, ['En cours']);
         return res.status(200).json({ total: result.rows[0].total});
     } catch (error) {
@@ -23,7 +23,7 @@ exports.countOrdreEnCours = async (req, res) => {
 
 exports.countOrdreFermé = async (req, res) => {
     try {
-        const sql = "SELECT COUNT(*) AS total FROM acc.ordre_travail WHERE status= $1";
+        const sql = "SELECT COUNT(*) AS total FROM acc.ordre_travail WHERE status= $1 AND is_deleted= false";
         const result = await db.query(sql, ['Fermé']);
         return res.status(200).json({ total: result.rows[0].total});
     } catch (error) {
@@ -34,8 +34,8 @@ exports.countOrdreFermé = async (req, res) => {
 exports.dispoOrderOuvert = async (req, res) =>{
     try {
         
-        const ouvertSql = "SELECT COUNT(*) AS total FROM acc.ordre_travail WHERE status= $1";
-        const totalSql = "SELECT COUNT(*) AS total FROM acc.ordre_travail";
+        const ouvertSql = "SELECT COUNT(*) AS total FROM acc.ordre_travail WHERE status= $1 AND is_deleted= false";
+        const totalSql = "SELECT COUNT(*) AS total FROM acc.ordre_travail WHERE is_deleted= false";
 
         const resultOuvertSql = await db.query(ouvertSql, ['Ouvert']);
         const resultTotalSql = await db.query(totalSql);
@@ -56,8 +56,8 @@ exports.dispoOrderOuvert = async (req, res) =>{
 exports.dispoOrderEnCours = async (req, res) =>{
     try {
         
-        const enCoursSql = "SELECT COUNT(*) AS total FROM acc.ordre_travail WHERE status= $1";
-        const totalSql = "SELECT COUNT(*) AS total FROM acc.ordre_travail";
+        const enCoursSql = "SELECT COUNT(*) AS total FROM acc.ordre_travail WHERE status= $1 AND is_deleted= false";
+        const totalSql = "SELECT COUNT(*) AS total FROM acc.ordre_travail WHERE is_deleted= false";
 
         const resultEnCoursSql = await db.query(enCoursSql, ['En cours']);
         const resultTotalSql = await db.query(totalSql);
@@ -78,8 +78,8 @@ exports.dispoOrderEnCours = async (req, res) =>{
 exports.dispoOrderFermé = async (req, res) =>{
     try {
         
-        const fermeSql = "SELECT COUNT(*) AS total FROM acc.ordre_travail WHERE status= $1";
-        const totalSql = "SELECT COUNT(*) AS total FROM acc.ordre_travail";
+        const fermeSql = "SELECT COUNT(*) AS total FROM acc.ordre_travail WHERE status= $1 AND is_deleted= false";
+        const totalSql = "SELECT COUNT(*) AS total FROM acc.ordre_travail WHERE is_deleted= false";
 
         const resultFermeSql = await db.query(fermeSql, ['Fermé']);
         const resultTotalSql = await db.query(totalSql);
