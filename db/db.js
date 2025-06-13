@@ -16,7 +16,7 @@ const { Pool } = require('pg'); // Importer Pool depuis pg
 //base de données en ligne
 
 const pool = new Pool({
-  connectionString: 'postgresql://flotte_db_owner:npg_zpIW1CdH8uQE@ep-quiet-forest-a8goto4e-pooler.eastus2.azure.neon.tech/flotte_db?sslmode=require',
+  connectionString: 'postgresql://dernier_flotte_owner:npg_9rfCDcXbL8ny@ep-misty-bread-a8n6hkjk-pooler.eastus2.azure.neon.tech/dernier_flotte?sslmode=require',
   ssl: {
     rejectUnauthorized: false,
   },
